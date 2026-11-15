@@ -1,0 +1,12 @@
+# personal / secret - never commit
+token.json
+config.json
+*.log
+heads/*
+!heads/README.txt
+cache/
+# build output
+node_modules/
+runtime/
+dist/
+*.zip

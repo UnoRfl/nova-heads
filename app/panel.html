@@ -1,0 +1,346 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data: https://cdn.discordapp.com; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'">
+<title>Nova Heads - Control</title>
+<link rel="stylesheet" href="hud.css">
+<link rel="stylesheet" href="themes.css">
+<style>
+:root{
+  --c:#4DF3FF; --txt:#EAF4FF; --dim:#8D9AB0; --faint:rgba(255,255,255,.07);
+  --edge:rgba(255,255,255,.14); --edge-hi:rgba(255,255,255,.32);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:transparent;color:var(--txt);font:500 13px/1.4 'Inter',sans-serif;-webkit-font-smoothing:antialiased;user-select:none;overflow:hidden}
+body{display:grid;grid-template-rows:52px 1fr;
+  background:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px) 0 0/32px 32px,
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px) 0 0/32px 32px,
+    radial-gradient(120% 90% at 0% 0%,rgba(77,243,255,.10),transparent 55%),
+    radial-gradient(90% 80% at 100% 100%,rgba(167,139,250,.12),transparent 55%),
+    rgba(8,10,18,.42)}
+.mono{font-family:'JetBrains Mono',monospace}
+.disp{font-family:'Chakra Petch',sans-serif}
+
+/* ---------------- cube glass tile ---------------- */
+.glass{position:relative;background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.03) 55%,rgba(255,255,255,.05));
+  border:1px solid var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(0,0,0,.25),5px 5px 0 rgba(0,0,0,.18)}
+.glass::before,.glass::after{content:"";position:absolute;width:8px;height:8px;border:0 solid var(--c);opacity:.7;pointer-events:none}
+.glass::before{top:-1px;left:-1px;border-top-width:1.5px;border-left-width:1.5px}
+.glass::after{bottom:-1px;right:-1px;border-bottom-width:1.5px;border-right-width:1.5px}
+
+/* ---------------- title bar ---------------- */
+.bar{-webkit-app-region:drag;display:flex;align-items:center;gap:12px;padding:0 10px 0 16px;border-bottom:1px solid var(--edge);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01))}
+.cube{width:22px;height:22px;position:relative;transform:rotate(45deg) skew(-8deg,-8deg)}
+.cube i{position:absolute;inset:0;border:1.5px solid var(--c);background:rgba(77,243,255,.10);box-shadow:0 0 10px rgba(77,243,255,.35)}
+.cube i:nth-child(2){inset:5px;background:rgba(77,243,255,.35);border-color:rgba(255,255,255,.7)}
+.brand{font:600 15px/1 'Chakra Petch';letter-spacing:.14em}
+.brand small{display:block;font:400 9px/1 'JetBrains Mono';letter-spacing:.2em;color:var(--dim);margin-top:4px}
+.status{margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 12px;font:500 10px/1 'JetBrains Mono';letter-spacing:.14em;color:var(--dim)}
+.status .dot{width:7px;height:7px;background:#FF9F1C;box-shadow:0 0 8px #FF9F1C}
+.status.ok .dot{background:#3DFF9A;box-shadow:0 0 8px #3DFF9A}
+.status b{color:var(--txt);font-weight:500}
+.wbtn{-webkit-app-region:no-drag;width:34px;height:30px;display:grid;place-items:center;border:1px solid transparent;background:none;color:var(--dim);cursor:pointer}
+.wbtn:hover{border-color:var(--edge);background:var(--faint);color:var(--txt)}
+.wbtn.x:hover{background:rgba(255,77,106,.2);border-color:rgba(255,77,106,.5);color:#fff}
+.wbtn svg{width:12px;height:12px;stroke:currentColor;stroke-width:1.6;fill:none}
+
+/* ---------------- layout ---------------- */
+.main{display:grid;grid-template-columns:168px 1fr 300px;gap:14px;padding:14px;min-height:0}
+nav{display:flex;flex-direction:column;gap:8px}
+nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 12px;font:600 12px/1 'Chakra Petch';letter-spacing:.14em;color:var(--dim);
+  border:1px solid transparent;transition:.15s}
+nav button .k{font:400 9px 'JetBrains Mono';opacity:.6;margin-left:auto}
+nav button:hover{color:var(--txt);background:var(--faint)}
+nav button.on{color:var(--txt);border-color:var(--edge);background:linear-gradient(90deg,rgba(77,243,255,.16),rgba(255,255,255,.03));box-shadow:inset 2px 0 0 var(--c)}
+nav .spacer{flex:1}
+nav .hint{font:400 10px/1.6 'JetBrains Mono';color:var(--dim);padding:10px;letter-spacing:.04em}
+nav .hint b{color:var(--txt);font-weight:500}
+
+.content{overflow:auto;padding:2px 6px 10px 2px;min-height:0}
+.content::-webkit-scrollbar{width:6px}.content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15)}
+.page{display:none}.page.on{display:block;animation:pg .25s ease}
+@keyframes pg{from{opacity:0;transform:translateY(6px)}}
+h2{font:600 18px/1 'Chakra Petch';letter-spacing:.1em;margin:4px 0 4px}
+.sub{font:400 10.5px/1.5 'JetBrains Mono';color:var(--dim);letter-spacing:.06em;margin-bottom:14px}
+
+/* theme cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:12px}
+.card{cursor:pointer;padding:10px 10px 8px;transition:transform .15s,border-color .15s}
+.card:hover{transform:translate(-1px,-1px);border-color:var(--edge-hi)}
+.card.on{border-color:var(--c);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),5px 5px 0 rgba(77,243,255,.18),0 0 20px rgba(77,243,255,.12)}
+.card .well{height:112px;overflow:hidden;position:relative;background:
+  linear-gradient(160deg,#2a3346,#151a26 60%,#20283a);margin-bottom:8px}
+.card .well::after{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");pointer-events:none}
+.card .well .mini{position:absolute;left:10px;top:8px;transform:scale(.74);transform-origin:0 0;width:260px}
+.card .lbl{display:flex;align-items:baseline;gap:8px}
+.card .lbl b{font:600 13px/1 'Chakra Petch';letter-spacing:.08em}
+.card .lbl span{font:400 9.5px/1 'JetBrains Mono';color:var(--dim);margin-left:auto}
+.card .chk{position:absolute;top:8px;right:8px;width:18px;height:18px;display:none;place-items:center;background:var(--c);color:#04121a;font:700 11px 'JetBrains Mono';z-index:4}
+.card.on .chk{display:grid}
+.well.light{background:linear-gradient(160deg,#cfd6e6,#a9b4cc 60%,#d9def0)}
+
+/* palettes */
+.pal{cursor:pointer;padding:12px}
+.pal.on{border-color:var(--c);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),5px 5px 0 rgba(77,243,255,.18)}
+.pal .chips{display:flex;gap:4px;margin:10px 0 2px}
+.pal .chips i{flex:1;height:22px}
+.pal b{font:600 13px/1 'Chakra Petch';letter-spacing:.08em}
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;padding:14px}
+.legend div{display:flex;align-items:center;gap:8px;font:400 10.5px 'JetBrains Mono';color:var(--dim)}
+.legend i{width:10px;height:10px;flex:0 0 10px}
+
+/* form rows */
+.rows{display:flex;flex-direction:column;gap:10px}
+.fr{display:flex;align-items:center;gap:14px;padding:12px 14px}
+.fr .t{flex:1}
+.fr .t b{display:block;font:600 12.5px/1.2 'Chakra Petch';letter-spacing:.08em}
+.fr .t span{font:400 10px/1.5 'JetBrains Mono';color:var(--dim)}
+.seg{display:flex;border:1px solid var(--edge)}
+.seg button{all:unset;cursor:pointer;padding:7px 12px;font:500 10.5px/1 'JetBrains Mono';letter-spacing:.1em;color:var(--dim)}
+.seg button+button{border-left:1px solid var(--edge)}
+.seg button.on{background:rgba(77,243,255,.18);color:var(--txt);box-shadow:inset 0 -2px 0 var(--c)}
+.tog{width:40px;height:20px;border:1px solid var(--edge);position:relative;cursor:pointer;background:rgba(0,0,0,.25);transition:.15s}
+.tog::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;background:var(--dim);transition:.18s}
+.tog.on{border-color:var(--c);background:rgba(77,243,255,.18)}
+.tog.on::after{left:22px;background:var(--c);box-shadow:0 0 8px var(--c)}
+input[type=range]{-webkit-appearance:none;width:170px;height:20px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--c) var(--p,50%),rgba(255,255,255,.18) var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;margin-top:-5px;background:var(--c);transform:rotate(45deg);box-shadow:0 0 8px var(--c)}
+.val{font:500 10.5px 'JetBrains Mono';color:var(--txt);width:42px;text-align:right}
+.btn{all:unset;cursor:pointer;padding:9px 14px;font:600 11px/1 'Chakra Petch';letter-spacing:.14em;border:1px solid var(--edge);background:var(--faint);transition:.15s}
+.btn:hover{border-color:var(--c);background:rgba(77,243,255,.12)}
+.warn{font:400 10px/1.5 'JetBrains Mono';color:#FFB86B;margin-top:4px}
+input[type=color]{-webkit-appearance:none;width:34px;height:24px;border:1px solid var(--edge);background:none;cursor:pointer;padding:0}
+input[type=color]::-webkit-color-swatch-wrapper{padding:2px}input[type=color]::-webkit-color-swatch{border:0}
+kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);background:rgba(0,0,0,.25);margin:0 2px}
+.code{font:400 10.5px/1.7 'JetBrains Mono';color:var(--dim);padding:12px 14px}
+.code b{color:var(--c);font-weight:500}
+
+/* preview column */
+.side{display:flex;flex-direction:column;gap:12px;min-height:0}
+.pv{flex:1;padding:12px;display:flex;flex-direction:column;min-height:0}
+.pv .head{display:flex;align-items:center;font:600 11px 'Chakra Petch';letter-spacing:.16em;margin-bottom:10px}
+.pv .head span{margin-left:auto;font:400 9.5px 'JetBrains Mono';color:var(--dim)}
+.stage{flex:1;position:relative;overflow:hidden;min-height:0;
+  background:linear-gradient(170deg,#384560 0%,#1b2232 45%,#2b2236 100%)}
+.stage::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(60% 40% at 80% 20%,rgba(255,170,90,.35),transparent),radial-gradient(50% 50% at 10% 90%,rgba(77,243,255,.18),transparent);}
+.stage .bigprev{position:absolute;left:14px;top:14px;width:330px}
+.stage.light{background:linear-gradient(170deg,#e9e3f3,#c9d3ea 50%,#efe0ea)}
+.bgpick{display:flex;gap:6px;margin-top:10px}
+.bgpick button{all:unset;cursor:pointer;width:22px;height:14px;border:1px solid var(--edge)}
+.bgpick button.on{outline:1px solid var(--c);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="cube"><i></i><i></i></div>
+  <div class="brand">NOVA HEADS<small>VOICE HUD // CONTROL</small></div>
+  <div class="status glass" id="status"><span class="dot"></span><span id="stxt">STARTING</span></div>
+  <button class="wbtn" id="min" title="Minimise"><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></button>
+  <button class="wbtn x" id="close" title="Close (overlay keeps running)"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg></button>
+</div>
+<div class="main">
+  <nav>
+    <button data-p="style" class="on">STYLE <span class="k">01</span></button>
+    <button data-p="color">COLOR <span class="k">02</span></button>
+    <button data-p="layout">LAYOUT <span class="k">03</span></button>
+    <button data-p="fx">EFFECTS <span class="k">04</span></button>
+    <button data-p="setup">SETUP <span class="k">05</span></button>
+    <div class="spacer"></div>
+    <div class="hint glass"><b>Ctrl+Alt+J</b> this panel<br><b>Ctrl+Alt+H</b> hide HUD<br><b>Ctrl+Alt+Shift+H</b> quit</div>
+  </nav>
+
+  <div class="content">
+    <section class="page on" id="p-style">
+      <h2>STYLE</h2><div class="sub">// pick a look. every card is a live preview.</div>
+      <div class="grid" id="themes"></div>
+    </section>
+
+    <section class="page" id="p-color">
+      <h2>COLOR</h2><div class="sub">// palettes recolour any style. "Theme" keeps the style's own colours.</div>
+      <div class="grid" id="pals"></div>
+      <div class="legend glass" id="legend"></div>
+      <div class="rows" style="margin-top:12px">
+        <div class="fr glass"><div class="t"><b>ACCENT OVERRIDE</b><span>idle/hairline colour, on top of the palette</span></div>
+          <input type="color" id="accent"><button class="btn" id="accentReset">RESET</button></div>
+      </div>
+    </section>
+
+    <section class="page" id="p-layout">
+      <h2>LAYOUT</h2><div class="sub">// where the HUD sits and how big it is.</div>
+      <div class="rows">
+        <div class="fr glass"><div class="t"><b>SIDE</b><span>which edge of your main screen</span></div>
+          <div class="seg" data-k="anchor"><button data-v="left">LEFT</button><button data-v="right">RIGHT</button></div></div>
+        <div class="fr glass"><div class="t"><b>HEIGHT</b><span>vertical position</span></div>
+          <input type="range" data-k="top" min="0.02" max="0.8" step="0.01"><span class="val" data-for="top"></span></div>
+        <div class="fr glass"><div class="t"><b>SIZE</b><span>scale of everything</span></div>
+          <input type="range" data-k="scale" min="0.7" max="1.8" step="0.05"><span class="val" data-for="scale"></span></div>
+        <div class="fr glass"><div class="t"><b>IDLE OPACITY</b><span>how faded people are when quiet</span></div>
+          <input type="range" data-k="idle_opacity" min="0.3" max="1" step="0.05"><span class="val" data-for="idle_opacity"></span></div>
+        <div class="fr glass"><div class="t"><b>HEADER</b><span>"VOICE — CHANNEL 06" line</span></div><div class="tog" data-k="show_header"></div></div>
+        <div class="fr glass"><div class="t"><b>NAMES</b><span>name plates next to heads</span></div><div class="tog" data-k="show_names"></div></div>
+        <div class="fr glass"><div class="t"><b>ONLY WHO'S TALKING</b><span>hide quiet people</span></div><div class="tog" data-k="only_speaking"></div></div>
+        <div class="fr glass"><div class="t"><b>HIDE MYSELF</b><span>don't show your own head</span></div><div class="tog" data-k="hide_self"></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="p-fx">
+      <h2>EFFECTS</h2><div class="sub">// motion and glass.</div>
+      <div class="rows">
+        <div class="fr glass"><div class="t"><b>JOIN / LEAVE</b><span>auto = what the style is designed for</span></div>
+          <div class="seg" data-k="fx"><button data-v="auto">AUTO</button><button data-v="glitch">GLITCH</button><button data-v="soft">SOFT</button><button data-v="none">NONE</button></div>
+          <button class="btn" id="replay">REPLAY</button></div>
+        <div class="fr glass"><div class="t"><b>PARTICLES</b><span>petals / embers / sparks on styles that have them</span></div><div class="tog" data-k="particles"></div></div>
+        <div class="fr glass"><div class="t"><b>REAL GLASS BLUR</b><span>see the actual game blurred through the plates</span>
+          <div class="warn">⚠ hides the HUD from recordings & screenshots (NVIDIA/OBS) — Windows rule for capture.</div></div>
+          <div class="tog" data-k="real_glass"></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="p-setup">
+      <h2>SETUP</h2><div class="sub">// everything you need, nothing you don't.</div>
+      <div class="rows">
+        <div class="fr glass"><div class="t"><b>START WITH WINDOWS</b><span>launch the HUD when you log in</span></div><div class="tog" data-k="autostart"></div></div>
+        <div class="fr glass"><div class="t"><b>CUSTOM HEADS</b><span>drop heads\&lt;username&gt;.png (+ _talk.png) to replace anyone's avatar</span></div>
+          <button class="btn" id="openHeads">OPEN FOLDER</button></div>
+        <div class="code glass">
+          <b>HOW IT WORKS</b><br>
+          Reads your voice channel from the Discord app on this PC (official local RPC,<br>
+          StreamKit app id). No mods, no bot, no account risk. First run: click<br>
+          <b>Authorize</b> in Discord once.<br><br>
+          <b>TIPS</b><br>
+          · turn off Discord's own overlay Voice widget to avoid doubles<br>
+          · games need borderless / windowed mode<br>
+          · LIVE + soundboard aren't exposed by Discord's local API
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="side">
+    <div class="pv glass">
+      <div class="head">LIVE PREVIEW <span id="pvname">CYBER</span></div>
+      <div class="stage" id="stage"><div class="bigprev" id="big"></div></div>
+      <div class="bgpick" id="bgpick">
+        <button data-bg="dark" class="on" style="background:linear-gradient(170deg,#384560,#2b2236)"></button>
+        <button data-bg="light" style="background:linear-gradient(170deg,#e9e3f3,#efe0ea)"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="hud.js"></script>
+<script>
+const THEMES = [
+  ["cyber", "CYBER", "original"], ["glass", "GLASS CUBE", "frosted"], ["soft", "SOFT", "pastel"], ["flow", "FLOW", "aurora"],
+  ["synth", "SYNTHWAVE", "neon drive"], ["terminal", "TERMINAL", "phosphor"], ["mono", "MONO", "swiss"], ["holo", "HOLO", "iridescent"],
+  ["comic", "COMIC", "spider-verse"], ["sakura", "SAKURA", "petals"], ["ember", "EMBER", "warm glow"],
+];
+const PALS = [
+  ["default", "THEME", ["#4DF3FF", "#3DFF9A", "#FF3DA5", "#FF9F1C", "#FFD23F", "#FF4D6A"]],
+  ["aurora", "AURORA", ["#5EEAD4", "#34D399", "#A78BFA", "#FBBF24", "#818CF8", "#FB7185"]],
+  ["sunset", "SUNSET", ["#FF8A5B", "#FFB347", "#FF5E8A", "#FF9F1C", "#C77DFF", "#EF233C"]],
+  ["ocean", "OCEAN", ["#38BDF8", "#22D3EE", "#60A5FA", "#FDBA74", "#A5B4FC", "#F87171"]],
+  ["candy", "CANDY", ["#FF9ECF", "#7CF5C4", "#FF6EC7", "#FFC46B", "#C9A7FF", "#FF7A8A"]],
+  ["toxic", "TOXIC", ["#B6FF3B", "#B6FF3B", "#00FFC6", "#FFB000", "#9D7CFF", "#FF3366"]],
+  ["blood", "BLOOD", ["#FF3B4E", "#FF3B4E", "#FF8A9A", "#FF9F1C", "#B983FF", "#8B0000"]],
+  ["ice", "ICE", ["#BFE9FF", "#9EE7FF", "#E0C3FC", "#FFD6A5", "#BDB2FF", "#FFADAD"]],
+  ["gold", "GOLD", ["#F5C451", "#F5C451", "#FFE29A", "#E08E45", "#C9A0FF", "#E5484D"]],
+];
+const LIGHT = new Set(["soft", "sakura"]);
+let cfg = {};
+const huds = [];          // {hud, people, fixedTheme}
+
+// ---------- demo people shared by all previews
+function cast(n = 6) { return demoCast().slice(0, n); }
+
+// ---------- theme cards
+const $themes = document.getElementById("themes");
+for (const [id, name, tagline] of THEMES) {
+  const card = document.createElement("div");
+  card.className = "card glass"; card.dataset.theme = id;
+  card.innerHTML = `<div class="chk">✓</div><div class="well ${id === "mono" ? "" : LIGHT.has(id) ? "light" : ""}"><div class="mini"></div></div>
+    <div class="lbl"><b>${name}</b><span>${tagline}</span></div>`;
+  card.onclick = () => set("theme", id);
+  $themes.appendChild(card);
+  const h = createHud(card.querySelector(".mini"), { noScale: true });
+  huds.push({ hud: h, people: cast(3), fixedTheme: id });
+}
+
+// ---------- palettes
+const $pals = document.getElementById("pals");
+for (const [id, name, chips] of PALS) {
+  const d = document.createElement("div");
+  d.className = "pal glass"; d.dataset.pal = id;
+  d.innerHTML = `<b>${name}</b><div class="chips">${chips.map((c) => `<i style="background:${c}"></i>`).join("")}</div>`;
+  d.onclick = () => set("palette", id);
+  $pals.appendChild(d);
+}
+document.getElementById("legend").innerHTML = [["idle", "#4DF3FF"], ["talking", "#3DFF9A"], ["you talking", "#FF3DA5"], ["self-muted", "#FF9F1C"],
+  ["server-muted", "#FFD23F"], ["deafened", "#FF4D6A"]].map(([t, c]) => `<div><i style="background:${c}"></i>${t}</div>`).join("") +
+  `<div style="grid-column:1/-1;opacity:.8">chip order: idle · talking · you · self-muted · server-muted · deafened</div>`;
+
+// ---------- big preview
+const big = createHud(document.getElementById("big"), { noScale: true });
+huds.push({ hud: big, people: cast(6), fixedTheme: null });
+
+// ---------- nav
+document.querySelectorAll("nav button").forEach((b) => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach((x) => x.classList.toggle("on", x === b));
+  document.querySelectorAll(".page").forEach((p) => p.classList.toggle("on", p.id === "p-" + b.dataset.p));
+});
+
+// ---------- controls
+function set(k, v) { cfg[k] = v; window.nova.set(k, v); apply(); }
+document.querySelectorAll(".seg").forEach((s) => s.querySelectorAll("button").forEach((b) => b.onclick = () => set(s.dataset.k, b.dataset.v)));
+document.querySelectorAll(".tog").forEach((t) => t.onclick = () => set(t.dataset.k, !t.classList.contains("on")));
+document.querySelectorAll("input[type=range]").forEach((r) => r.oninput = () => set(r.dataset.k, parseFloat(r.value)));
+document.getElementById("accent").oninput = (e) => set("accent_override", e.target.value);
+document.getElementById("accentReset").onclick = () => set("accent_override", null);
+document.getElementById("replay").onclick = () => huds.forEach((h) => h.hud.replay());
+document.getElementById("openHeads").onclick = () => window.nova.openHeads();
+document.getElementById("min").onclick = () => window.nova.win("min");
+document.getElementById("close").onclick = () => window.nova.win("close");
+document.querySelectorAll("#bgpick button").forEach((b) => b.onclick = () => {
+  document.querySelectorAll("#bgpick button").forEach((x) => x.classList.toggle("on", x === b));
+  document.getElementById("stage").classList.toggle("light", b.dataset.bg === "light");
+});
+
+function apply() {
+  document.querySelectorAll(".card").forEach((c) => c.classList.toggle("on", c.dataset.theme === (cfg.theme || "cyber")));
+  document.querySelectorAll(".pal").forEach((c) => c.classList.toggle("on", c.dataset.pal === (cfg.palette || "default")));
+  document.querySelectorAll(".seg").forEach((s) => s.querySelectorAll("button").forEach((b) =>
+    b.classList.toggle("on", String(cfg[s.dataset.k] ?? (s.dataset.k === "fx" ? "auto" : "left")) === b.dataset.v)));
+  document.querySelectorAll(".tog").forEach((t) => t.classList.toggle("on", t.dataset.k === "particles" || t.dataset.k === "show_header" || t.dataset.k === "show_names"
+    ? cfg[t.dataset.k] !== false : !!cfg[t.dataset.k]));
+  document.querySelectorAll("input[type=range]").forEach((r) => {
+    const v = cfg[r.dataset.k] ?? { top: .33, scale: 1, idle_opacity: .8 }[r.dataset.k];
+    r.value = v; r.style.setProperty("--p", ((v - r.min) / (r.max - r.min)) * 100 + "%");
+    document.querySelector(`.val[data-for=${r.dataset.k}]`).textContent = r.dataset.k === "top" ? Math.round(v * 100) + "%" : v.toFixed(2);
+  });
+  if (cfg.accent_override) document.getElementById("accent").value = cfg.accent_override;
+  document.getElementById("pvname").textContent = (THEMES.find((t) => t[0] === (cfg.theme || "cyber")) || ["", "CYBER"])[1];
+  for (const h of huds) h.hud.setConfig({ ...cfg, theme: h.fixedTheme || cfg.theme, anchor: "left", only_speaking: false, hide_self: false,
+                                          palette: h.fixedTheme ? "default" : cfg.palette });
+}
+
+// animate all previews with fake talking
+function tick() { for (const h of huds) h.hud.render({ channel: "Preview", people: demoTick(h.people).map((p) => ({ ...p })) }); }
+setInterval(tick, 900);
+
+window.nova.onConfig((c) => { cfg = c; apply(); tick(); });
+window.nova.onState((s) => {
+  const st = document.getElementById("status");
+  st.classList.toggle("ok", s.status === "connected");
+  document.getElementById("stxt").innerHTML = s.status === "connected"
+    ? (s.channel ? `CONNECTED · <b>${s.channel.toUpperCase()}</b> · ${String((s.people || []).length).padStart(2, "0")}` : "CONNECTED · NOT IN VOICE")
+    : (s.status || "").toUpperCase();
+});
+window.nova.ready();
+</script>
+</body>
+</html>

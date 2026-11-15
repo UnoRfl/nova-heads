@@ -1,0 +1,162 @@
+/* Nova Heads - base HUD styles (= the "Cyber" theme). Themes in themes.css restyle on top of this.
+   Everything is scoped to .hud so the settings panel can show several live previews side by side. */
+@font-face{font-family:'Chakra Petch';font-weight:500;src:url(fonts/ChakraPetch-500.woff2) format('woff2');}
+@font-face{font-family:'Chakra Petch';font-weight:600;src:url(fonts/ChakraPetch-600.woff2) format('woff2');}
+@font-face{font-family:'JetBrains Mono';font-weight:400 500;src:url(fonts/JetBrainsMono-400.woff2) format('woff2');}
+@font-face{font-family:'Bangers';font-weight:400;src:url(fonts/Bangers-400.woff2) format('woff2');}
+@font-face{font-family:'Inter';font-weight:500;src:url(fonts/Inter-500.woff2) format('woff2');}
+@font-face{font-family:'Inter';font-weight:600;src:url(fonts/Inter-600.woff2) format('woff2');}
+@font-face{font-family:'Orbitron';font-weight:600;src:url(fonts/Orbitron-600.woff2) format('woff2');}
+@font-face{font-family:'Orbitron';font-weight:800;src:url(fonts/Orbitron-800.woff2) format('woff2');}
+@font-face{font-family:'Quicksand';font-weight:500;src:url(fonts/Quicksand-500.woff2) format('woff2');}
+@font-face{font-family:'Quicksand';font-weight:700;src:url(fonts/Quicksand-700.woff2) format('woff2');}
+@font-face{font-family:'Space Grotesk';font-weight:500;src:url(fonts/SpaceGrotesk-500.woff2) format('woff2');}
+@font-face{font-family:'Space Grotesk';font-weight:700;src:url(fonts/SpaceGrotesk-700.woff2) format('woff2');}
+@font-face{font-family:'VT323';font-weight:400;src:url(fonts/VT323-400.woff2) format('woff2');}
+
+@property --acc{syntax:'<color>';inherits:true;initial-value:#4DF3FF}
+@property --spin{syntax:'<angle>';inherits:false;initial-value:0deg}
+
+.hud{
+  --c:#4DF3FF; --c2:#A78BFA; --ink:8,10,16; --txt:#E9F4FF; --dim:#7C889C; --line:rgba(170,225,255,.18);
+  --av:36px; --cut:7px; --mag:#FF2FB3;
+  --s-talk:#3DFF9A; --s-you:#FF3DA5; --s-self:#FF9F1C; --s-server:#FFD23F; --s-local:#A78BFA; --s-deaf:#FF4D6A;
+  --fx:glitch;                 /* join/leave effect for this theme: glitch | soft */
+  --particles:none;            /* none | petal | ember | spark */
+  position:relative;transform-origin:0 0;transition:opacity .35s ease;
+  -webkit-font-smoothing:antialiased;user-select:none
+}
+.hud *{box-sizing:border-box;margin:0;padding:0}
+.hud.empty{opacity:0}
+.hud.right{transform-origin:100% 0;direction:rtl}
+.hud.right .row,.hud.right .hdr{direction:ltr;flex-direction:row-reverse}
+.hud.right .plate{margin-left:0;margin-right:11px}
+
+/* ---------- header ---------- */
+.hud .hdr{display:inline-flex;align-items:center;gap:7px;height:18px;margin:0 0 8px 0;padding:0 12px 0 7px;
+  background:rgba(var(--ink),.72);clip-path:polygon(0 0,100% 0,calc(100% - 6px) 100%,0 100%);
+  font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.16em;color:#9AA6BA;text-transform:uppercase}
+.hud .hdr .pip{width:5px;height:5px;background:var(--c);box-shadow:0 0 6px var(--c);
+  clip-path:polygon(0 0,100% 0,100% 100%);animation:nh-pip 2.4s ease-in-out infinite}
+.hud .hdr .ch{color:var(--txt);opacity:.85;max-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.hud .hdr .rule{flex:0 0 22px;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.hud .hdr .n{color:var(--c);opacity:.8}
+@keyframes nh-pip{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ---------- rows ---------- */
+.hud .list{list-style:none;display:flex;flex-direction:column}
+.hud .row{display:flex;align-items:center;height:calc(var(--av) + 10px);
+  opacity:var(--idle-op,.8);transition:opacity .22s ease, height .3s ease, margin .3s ease, --acc .35s ease;
+  position:relative;--acc:var(--c)}
+.hud .row[data-st=talk]{--acc:var(--talk,var(--s-talk))}
+.hud .row[data-st=youtalk]{--acc:var(--talk,var(--s-you))}
+.hud .row[data-st=selfmute]{--acc:var(--s-self)}
+.hud .row[data-st=servermute]{--acc:var(--s-server)}
+.hud .row[data-st=localmute]{--acc:var(--s-local)}
+.hud .row[data-st=deaf]{--acc:var(--s-deaf)}
+.hud .row.lit .frame{background:color-mix(in srgb,var(--acc) 75%,transparent)}
+.hud :where(.row.lit) .plate::before{background:var(--acc);opacity:.95}
+.hud .row.talk{opacity:1}
+.hud .row.gone{height:0;opacity:0;margin:0}
+.hud .row.pre{opacity:0}
+
+/* ---------- avatar ---------- */
+.hud .av{position:relative;flex:0 0 var(--av);width:var(--av);height:var(--av);transition:filter .22s ease, transform .25s ease}
+.hud .frame{position:absolute;inset:0;padding:1px;background:var(--line);overflow:hidden;
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
+  transition:background .2s ease}
+.hud .frame img{display:block;width:100%;height:100%;object-fit:cover;
+  clip-path:polygon(calc(var(--cut) - .5px) 0,100% 0,100% calc(100% - var(--cut) + .5px),calc(100% - var(--cut) + .5px) 100%,0 100%,0 calc(var(--cut) - .5px));
+  filter:saturate(.8) brightness(.82);transition:filter .22s ease}
+.hud .row.talk .frame{background:var(--acc)}
+.hud .row.talk .frame img{filter:none}
+.hud .row.talk .av{filter:drop-shadow(0 0 5px color-mix(in srgb,var(--acc) 70%,transparent))}
+.hud .row.muted .frame img{filter:grayscale(1) brightness(.6)}
+
+.hud .scan{position:absolute;inset:1px;overflow:hidden;pointer-events:none;opacity:0;
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut))}
+.hud .scan::after{content:"";position:absolute;left:0;right:0;height:40%;top:-40%;
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--acc) 35%,transparent) 85%,var(--acc) 100%);opacity:.55}
+.hud .row.talk .scan{opacity:1}
+.hud .row.talk .scan::after{animation:nh-scan 1.8s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes nh-scan{0%{top:-40%}70%,100%{top:110%}}
+
+.hud .br{position:absolute;width:6px;height:6px;border:0 solid var(--acc);opacity:0;
+  transition:transform .28s cubic-bezier(.2,.9,.25,1.2),opacity .2s ease}
+.hud .br.tl{top:-5px;left:-5px;border-top-width:1.5px;border-left-width:1.5px;transform:translate(-4px,-4px)}
+.hud .br.tr{top:-5px;right:-5px;border-top-width:1.5px;border-right-width:1.5px;transform:translate(4px,-4px)}
+.hud .br.bl{bottom:-5px;left:-5px;border-bottom-width:1.5px;border-left-width:1.5px;transform:translate(-4px,4px)}
+.hud .br.brr{bottom:-5px;right:-5px;border-bottom-width:1.5px;border-right-width:1.5px;transform:translate(4px,4px)}
+.hud .row.talk .br{opacity:.95;transform:none}
+
+.hud .st{position:absolute;right:-4px;bottom:-4px;width:15px;height:15px;display:none;place-items:center;z-index:2;
+  background:rgb(var(--ink));border:1px solid color-mix(in srgb,var(--acc) 70%,transparent)}
+.hud .st svg{width:9px;height:9px;stroke:var(--acc);fill:none;stroke-width:2;stroke-linecap:round}
+.hud .row.muted .st{display:grid}
+
+/* ---------- name plate ---------- */
+.hud .plate{position:relative;display:flex;align-items:center;height:22px;margin-left:11px;padding:0 13px 0 9px;
+  background:linear-gradient(90deg,rgba(var(--ink),.88),rgba(var(--ink),.7));
+  clip-path:polygon(0 0,100% 0,calc(100% - 7px) 100%,0 100%);transition:padding .25s ease, transform .25s ease, background .25s ease}
+.hud .plate::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--dim);opacity:.6;
+  transition:background .2s ease,opacity .2s ease,box-shadow .2s ease}
+.hud .plate::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;
+  background:linear-gradient(90deg,var(--acc),transparent);transition:width .35s ease}
+.hud :where(.row.talk) .plate::before{background:var(--acc);opacity:1;box-shadow:0 0 8px var(--acc)}
+.hud .row.talk .plate::after{width:100%}
+.hud .idx{font:400 9px/1 'JetBrains Mono',monospace;color:var(--dim);letter-spacing:.06em;margin-right:8px;opacity:.8;position:relative}
+.hud .row.talk .idx{color:var(--acc);opacity:1}
+.hud .name{font:600 12.5px/1 'Chakra Petch',sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--txt);
+  white-space:nowrap;max-width:170px;overflow:hidden;text-overflow:ellipsis;transition:text-shadow .2s ease, color .2s ease;position:relative}
+.hud .row.talk .name{text-shadow:-1px 0 color-mix(in srgb,var(--mag) 60%,transparent),1px 0 color-mix(in srgb,var(--c) 60%,transparent),
+  0 0 10px color-mix(in srgb,var(--acc) 45%,transparent)}
+.hud .row.muted .name{color:var(--dim)}
+.hud .you{font:400 8.5px/1 'JetBrains Mono',monospace;color:var(--dim);margin-left:7px;letter-spacing:.12em;position:relative}
+.hud .tag{font:500 8.5px/1 'JetBrains Mono',monospace;color:var(--acc);margin-left:8px;letter-spacing:.14em;position:relative;
+  padding:2px 4px 2px 5px;border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);display:none}
+.hud .tag:not(:empty){display:inline-block}
+
+.hud .wave{display:flex;align-items:center;gap:2px;height:12px;width:0;margin-left:0;overflow:hidden;position:relative;
+  transition:width .25s ease,margin .25s ease}
+.hud .row.talk .wave{width:19px;margin-left:9px}
+.hud .wave i{display:block;width:1.5px;height:100%;background:var(--acc);transform:scaleY(.2);border-radius:1px}
+.hud .row.talk .wave i{animation:nh-eq .9s ease-in-out infinite}
+.hud .wave i:nth-child(1){animation-duration:.82s!important}
+.hud .wave i:nth-child(2){animation-duration:.61s!important;animation-delay:-.2s!important}
+.hud .wave i:nth-child(3){animation-duration:.95s!important;animation-delay:-.45s!important}
+.hud .wave i:nth-child(4){animation-duration:.7s!important;animation-delay:-.1s!important}
+.hud .wave i:nth-child(5){animation-duration:.88s!important;animation-delay:-.6s!important}
+@keyframes nh-eq{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
+
+/* ---------- glitch layers ---------- */
+.hud .frame::after,.hud .htp{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  background-image:radial-gradient(circle,var(--acc) 0 1.1px,transparent 1.4px);background-size:4px 4px}
+.hud .htp{display:block}
+.hud .row.ht .frame::after,.hud .row.ht .htp{opacity:.75}
+.hud .row.ht2 .frame::after,.hud .row.ht2 .htp{opacity:.75;background-image:radial-gradient(circle,var(--mag) 0 1.1px,transparent 1.4px);background-position:2px 2px}
+.hud .ghost{position:absolute!important;left:0;top:0;width:100%;height:100%;pointer-events:none;opacity:.9!important;
+  mix-blend-mode:screen;transition:none!important}
+.hud .ghost.gm{filter:grayscale(1) brightness(1.5) sepia(1) hue-rotate(275deg) saturate(7)}
+.hud .ghost.gc{filter:grayscale(1) brightness(1.5) sepia(1) hue-rotate(140deg) saturate(7)}
+.hud .ghost.gw{filter:none}
+.hud .ghost .ghost{display:none}
+
+/* ---------- particles (petals / embers / sparks), spawned by hud.js ---------- */
+.hud .pt{position:absolute;pointer-events:none;left:calc(var(--av) / 2);top:50%;z-index:3}
+.hud .pt.petal{width:7px;height:5px;background:var(--acc);border-radius:70% 0 70% 0;opacity:0;
+  animation:nh-petal 1.9s ease-out forwards}
+.hud .pt.ember{width:3px;height:3px;border-radius:50%;background:var(--acc);box-shadow:0 0 6px 1px var(--acc);opacity:0;
+  animation:nh-ember 1.4s ease-out forwards}
+.hud .pt.spark{width:2px;height:2px;background:#fff;box-shadow:0 0 5px 1px var(--acc);opacity:0;animation:nh-spark .9s ease-out forwards}
+@keyframes nh-petal{0%{opacity:0;transform:translate(0,0) rotate(0)}15%{opacity:.95}
+  100%{opacity:0;transform:translate(var(--dx,40px),var(--dy,-26px)) rotate(var(--rot,260deg))}}
+@keyframes nh-ember{0%{opacity:0;transform:translate(0,4px)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx,6px),-34px) scale(.4)}}
+@keyframes nh-spark{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(var(--dx,20px),var(--dy,-14px))}}
+
+/* soft (non-glitch) join/leave */
+.hud .row.soft-in{animation:nh-soft-in .5s cubic-bezier(.2,.8,.2,1) both}
+.hud .row.soft-out{animation:nh-soft-out .34s ease-in both}
+@keyframes nh-soft-in{0%{opacity:0;transform:translateX(-14px) scale(.96);filter:blur(6px)}100%{opacity:.8;transform:none;filter:none}}
+@keyframes nh-soft-out{0%{opacity:.8}100%{opacity:0;transform:translateX(-10px) scale(.97);filter:blur(5px)}}
+.hud.right .row.soft-in{animation-name:nh-soft-in-r}
+@keyframes nh-soft-in-r{0%{opacity:0;transform:translateX(14px) scale(.96);filter:blur(6px)}100%{opacity:.8;transform:none;filter:none}}
