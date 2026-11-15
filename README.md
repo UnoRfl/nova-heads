@@ -1,4 +1,6 @@
-# Nova Heads
+<p align="center"><img src="docs/banner.png" alt="Nova Heads" width="100%"></p>
+
+# <img src="docs/icon.png" width="34" align="top"> Nova Heads
 
 **A custom Discord voice overlay for Windows.** It shows who's in your voice channel as a HUD on top of your games.
 Whoever is talking lights up, and people glitch in and out when they join or leave. There are **11 styles** and **9 colour palettes**,

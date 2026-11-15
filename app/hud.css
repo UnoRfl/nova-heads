@@ -159,4 +159,6 @@
 @keyframes nh-soft-in{0%{opacity:0;transform:translateX(-14px) scale(.96);filter:blur(6px)}100%{opacity:.8;transform:none;filter:none}}
 @keyframes nh-soft-out{0%{opacity:.8}100%{opacity:0;transform:translateX(-10px) scale(.97);filter:blur(5px)}}
 .hud.right .row.soft-in{animation-name:nh-soft-in-r}
+/* sakura: painted petal sprites (app/petals/p1-8.png) instead of the CSS leaf shape */
+.hud .pt.petal{width:13px;height:13px;border-radius:0;background:center/contain no-repeat;filter:drop-shadow(0 1px 1px rgba(160,40,90,.25))}
 @keyframes nh-soft-in-r{0%{opacity:0;transform:translateX(14px) scale(.96);filter:blur(6px)}100%{opacity:.8;transform:none;filter:none}}

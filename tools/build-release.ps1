@@ -14,6 +14,9 @@ New-Item -ItemType Directory -Force (Join-Path $stage "app\fonts"), (Join-Path $
 Get-ChildItem (Join-Path $root "app") -File | Where-Object { $_.Name -ne "package-lock.json" } |
   Copy-Item -Destination (Join-Path $stage "app")
 Copy-Item (Join-Path $root "app\fonts\*.woff2") (Join-Path $stage "app\fonts")
+# any other asset folders (petals, ...) - everything except node_modules and fonts (done above)
+Get-ChildItem (Join-Path $root "app") -Directory | Where-Object { $_.Name -notin @("node_modules", "fonts") } |
+  ForEach-Object { Copy-Item -Recurse $_.FullName (Join-Path $stage "app\$($_.Name)") }
 # runtime: the official Electron build, unmodified (keeps its signature/reputation for SmartScreen & Smart App Control)
 Copy-Item -Recurse $electron (Join-Path $stage "runtime")
 Copy-Item (Join-Path $root "Start Nova Heads.bat"), (Join-Path $root "README.md"), (Join-Path $root "LICENSE") $stage

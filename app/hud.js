@@ -109,6 +109,7 @@
         if (!r.el.classList.contains("talk")) continue;
         const p = document.createElement("i");
         p.className = "pt " + kind;
+        if (kind === "petal") p.style.backgroundImage = `url(petals/p${1 + Math.floor(Math.random() * 8)}.png)`;   // real petal sprites
         const right = root.classList.contains("right");
         p.style.setProperty("--dx", (right ? -1 : 1) * rnd(14, 60) + "px");
         p.style.setProperty("--dy", rnd(-30, 10) + "px");
