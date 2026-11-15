@@ -257,3 +257,32 @@
 @keyframes nh-dust{0%{opacity:0}20%{opacity:.7}50%{opacity:.2}70%{opacity:.6}100%{opacity:0;transform:translate(calc(var(--dx) * .6),calc(var(--dy) * .5))}}
 .hud .pt.bit{width:4px;height:4px;background:var(--acc);box-shadow:0 0 0 1px rgba(0,0,0,.45);opacity:0;animation:nh-bit .9s steps(7) forwards}
 @keyframes nh-bit{0%{opacity:1;transform:translate(0,0)}45%{opacity:1;transform:translate(calc(var(--dx) * .6),calc(var(--dy) * .7 - 8px))}100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 14px))}}
+
+/* ---------- v2.3: heat glow, toasts, compact mode ---------- */
+.hud .heat{position:absolute;inset:-7px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .6s ease,transform .6s ease;
+  background:radial-gradient(circle,color-mix(in srgb,var(--acc) 60%,transparent) 0,transparent 70%);filter:blur(4px)}
+.hud .row.talk .heat{opacity:calc(var(--heat,0) * .9);transform:scale(calc(1 + var(--heat,0) * .28))}
+
+.hud .toasts{position:absolute;left:0;top:calc(100% + 12px);display:flex;flex-direction:column;gap:10px;align-items:flex-start;pointer-events:none}
+.hud.right .toasts{left:auto;right:0;align-items:flex-end}
+.hud.bottom .toasts{top:auto;bottom:calc(100% + 12px);flex-direction:column-reverse}
+.hud .toast{--acc:var(--c);display:flex;animation:nh-toast 2.8s cubic-bezier(.2,.8,.2,1) both}
+.hud .toast.join{--acc:var(--s-talk)}
+.hud .toast.left{--acc:var(--s-deaf)}
+.hud .toast .plate{margin:0!important;animation:none!important}
+.hud .toast .plate::before{background:var(--acc);opacity:1}
+.hud .toast .plate::after{width:100%}
+.hud .toast .tag{display:inline-block}
+.hud .toast .tag:empty{display:none}
+@keyframes nh-toast{0%{opacity:0;transform:translateY(8px) scale(.94)}10%,82%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-6px)}}
+
+/* compact: avatars only, in a row; the talker's name pops up under them */
+.hud.compact .list{flex-direction:row;flex-wrap:wrap;gap:4px 12px;max-width:352px}
+.hud.right.compact .list{flex-direction:row-reverse}
+.hud.compact .row{height:calc(var(--av) + 34px);width:var(--av);flex-direction:column!important;justify-content:flex-start;align-items:center;padding-top:6px}
+.hud.compact .row.gone{height:0;width:0}
+.hud.compact .plate{position:absolute!important;top:calc(var(--av) + 12px);left:50%;margin:0!important;translate:-50% 0;opacity:0;scale:.82;
+  transition:opacity .2s ease,scale .2s ease;pointer-events:none;z-index:4;white-space:nowrap}
+.hud.compact .row.talk .plate{opacity:1;scale:.9}
+.hud.compact .idx,.hud.compact .tag,.hud.compact .you,.hud.compact .wave{display:none}
+.hud.right .toast .plate{direction:ltr}

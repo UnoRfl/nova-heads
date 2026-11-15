@@ -2,7 +2,7 @@
 // Transparent, click-through, always-on-top window + Discord local RPC (StreamKit app id,
 // same trick as trigg/Discover, so no developer app / secret). Token shared with ../token.json.
 const { app, BrowserWindow, globalShortcut, screen, ipcMain, Tray, Menu, nativeImage, nativeTheme,
-        desktopCapturer, session, shell } = require("electron");
+        desktopCapturer, session, shell, dialog } = require("electron");
 const net = require("net");
 const fs = require("fs");
 const path = require("path");
@@ -23,6 +23,7 @@ const SHOT = arg("--shot"), SHOT_AT = parseFloat(arg("--shot-at", "3")), SECONDS
 const CONFIG_FILE = path.join(ROOT, "config.json");
 const DEFAULTS = { theme: "cyber", palette: "default", anchor: "left", top: 0.33, margin: 14, scale: 1, idle_opacity: 0.8,
                    hide_self: false, only_speaking: false, show_header: true, show_names: true, fx: "auto", particles: true, sfx: true, sfx_volume: 0.5,
+                   compact: false, toasts: true, stream: false, stream_anchor: "left", hide_from_capture: false, profiles: {}, custom_slice: 30,
                    real_glass: false, autostart: false, accent_override: null, people: {} };
 const FIRST_RUN = !fs.existsSync(CONFIG_FILE);
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");   // HUD sounds play without a click
@@ -58,10 +59,13 @@ function customHead(keys) {
 
 function view() {
   const people = [];
+  const roster = [];
   for (const p of state.people.values()) {
-    if (cfg.hide_self && p.id === state.me) continue;
     const pc = cfg.people[(p.username || "").toLowerCase()] || cfg.people[p.id] || {};
     const custom = customHead([p.username, p.id, pc.image]);
+    roster.push({ id: p.id, user: p.username || p.id, name: p.name || p.username || "?", avatar: custom || p.avatarUrl, custom: !!custom });
+    if (cfg.hide_self && p.id === state.me) continue;
+    if (pc.hidden) continue;
     const base = custom && custom.replace(/\.[a-z0-9]+$/i, "");
     const talk = custom ? customHead([path.basename(base) + "_talk"]) : null;
     people.push({
@@ -73,14 +77,15 @@ function view() {
           : p.speaking ? (p.id === state.me ? "youtalk" : "talk") : "idle",
     });
   }
-  return { channel: state.channel, people, status: state.status };
+  return { channel: state.channel, people, roster, status: state.status };
 }
 
 function push() {
   if (pushQueued) return;
   pushQueued = true;
-  setImmediate(() => { pushQueued = false; const v = view();
-    for (const w of [win, panel]) if (w && !w.isDestroyed()) w.webContents.send("state", v); });
+  setImmediate(() => { pushQueued = false; trackTalk(); const v = view();
+    for (const w of [win, panel]) if (w && !w.isDestroyed()) w.webContents.send("state", v);
+    sse("state", v); });
 }
 
 function applyVoiceState(vs) {
@@ -236,6 +241,146 @@ function demo() {
   push();
 }
 
+
+// ------------------------------------------------------------------ v2.3: game profiles, stream source, stats, art
+const http = require("http");
+const { execFile } = require("child_process");
+const CUSTOM = path.join(ROOT, "custom");
+const THEME_IDS = ["cyber", "glass", "soft", "flow", "synth", "terminal", "mono", "holo", "comic", "sakura", "ember",
+                   "ink", "noir", "oni", "anime", "pop", "pixel", "custom"];
+const THEME_NAMES = { glass: "GLASS CUBE", synth: "SYNTHWAVE", ink: "INK 墨", oni: "ONI 鬼", pixel: "8-BIT", custom: "MY ART" };
+// keys a game profile can override (everything about the look + where it sits)
+const PROFILE_KEYS = ["theme", "palette", "accent_override", "display", "display_hint", "pos_x", "pos_y", "scale", "compact",
+                      "fx", "particles", "idle_opacity", "show_header", "show_names", "only_speaking"];
+let activeGame = null, runningApps = [], runningKey = "";
+function eff() {
+  const p = activeGame && cfg.profiles && cfg.profiles[activeGame];
+  return p ? { ...cfg, ...p } : cfg;
+}
+const SKIP_APPS = new Set(["explorer", "electron", "applicationframehost", "textinputhost", "systemsettings", "shellexperiencehost",
+  "searchhost", "startmenuexperiencehost", "lockapp", "nvidia overlay", "nvcontainer", "dwm", "csrss", "svchost", "conhost", "cmd",
+  "powershell", "pwsh", "windowsterminal", "openconsole", "taskmgr", "rundll32", "dllhost", "sihost", "ctfmon", "widgets",
+  "phoneexperiencehost", "gamebar", "gamebarftserver", "crashpad_handler", "claude", "msedgewebview2"]);
+// every 5 s: which apps are running (Get-Process: fast, includes window titles)?
+// a running app with a saved profile switches the HUD to that look
+const PS_LIST = "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-Process | ForEach-Object { $_.ProcessName + [char]9 + $_.MainWindowTitle }";
+function scanApps() {
+  execFile("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", PS_LIST], { windowsHide: true, maxBuffer: 16e6 }, (err, out) => {
+    try {
+      if (!err) {
+        const names = new Set(), apps = new Map();
+        for (const line of out.split(/\r?\n/)) {
+          const [raw, title] = line.split("\t"); if (!raw) continue;
+          const name = raw.trim().toLowerCase(); names.add(name);
+          if (title && title.trim() && !SKIP_APPS.has(name) && !apps.has(name)) apps.set(name, title.trim().slice(0, 70));
+        }
+        runningApps = [...apps].map(([name, title]) => ({ name, title })).sort((a, b) => a.name.localeCompare(b.name));
+        const next = Object.keys(cfg.profiles || {}).find((g) => names.has(g)) || null;
+        if (next !== activeGame) {
+          activeGame = next; log("game profile: " + (next || "none"));
+          placeOverlay(); sendConfig(); push();
+          toast(next ? "PROFILE · " + next.toUpperCase() : "DEFAULT LOOK");
+        } else if (JSON.stringify(runningApps) !== runningKey) { runningKey = JSON.stringify(runningApps); if (panel && !panel.isDestroyed()) sendConfig(); }
+      }
+    } catch (e) { log("scanApps: " + e.message); }
+    setTimeout(scanApps, 5000);
+  });
+}
+
+// talk-time stats for this session
+const stats = { since: Date.now(), people: {} };
+const talkStart = new Map();
+function trackTalk() {
+  const now = Date.now();
+  for (const p of state.people.values()) {
+    const pc = cfg.people[(p.username || "").toLowerCase()] || cfg.people[p.id] || {};
+    const s = stats.people[p.id] || (stats.people[p.id] = { ms: 0, turns: 0 });
+    s.name = pc.name || p.name || p.username || s.name || "?"; s.avatar = customHead([p.username, p.id]) || p.avatarUrl || s.avatar;
+    const on = p.speaking && !p.mute;
+    if (on && !talkStart.has(p.id)) { talkStart.set(p.id, now); s.turns++; }
+    if (!on && talkStart.has(p.id)) { s.ms += now - talkStart.get(p.id); talkStart.delete(p.id); }
+  }
+  for (const id of [...talkStart.keys()]) if (!state.people.has(id)) { stats.people[id].ms += now - talkStart.get(id); talkStart.delete(id); }
+}
+function statsView() {
+  const now = Date.now();
+  return { since: stats.since, people: Object.entries(stats.people)
+    .map(([id, s]) => ({ id, name: s.name, avatar: s.avatar, turns: s.turns, ms: s.ms + (talkStart.has(id) ? now - talkStart.get(id) : 0) }))
+    .filter((p) => p.turns > 0).sort((a, b) => b.ms - a.ms) };
+}
+
+// OBS browser source: a tiny local-only web server (127.0.0.1) serving a transparent copy of the HUD + live updates
+let server = null;
+const clients = new Set();
+const streamPort = () => (TEST ? 7378 : cfg.stream_port || 7377);
+const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2",
+               ".png": "image/png", ".gif": "image/gif", ".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml" };
+function sse(evt, data) {
+  if (!clients.size) return;
+  const msg = `event: ${evt}\ndata: ${JSON.stringify(data)}\n\n`;
+  for (const c of clients) c.write(msg);
+}
+function streamCfg() { return { ...eff(), anchor: cfg.stream_anchor || "left", _valign: "top", sfx: false, people: undefined, profiles: undefined }; }
+function startStream() {
+  if (server) return;
+  server = http.createServer((req, res) => {
+    let u; try { u = new URL(req.url, "http://localhost"); } catch { res.writeHead(400); return res.end(); }
+    if (u.pathname === "/events") {
+      res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" });
+      clients.add(res); req.on("close", () => clients.delete(res));
+      res.write(`event: config\ndata: ${JSON.stringify(streamCfg())}\n\n`);
+      res.write(`event: state\ndata: ${JSON.stringify(view())}\n\n`);
+      return;
+    }
+    let file = null;
+    const rel = decodeURIComponent(u.pathname);
+    if (rel === "/" || rel === "/stream") file = path.join(__dirname, "stream.html");
+    else if (rel.startsWith("/heads/")) file = path.join(HEADS, path.basename(rel));
+    else if (rel.startsWith("/custom/")) file = path.join(CUSTOM, path.basename(rel));
+    else if (/^\/(hud\.js|hud\.css|themes\.css|fonts\/[\w.-]+|petals\/[\w.-]+)$/.test(rel)) file = path.join(__dirname, rel);
+    const ext = file ? path.extname(file).toLowerCase() : "";
+    if (!file || !MIME[ext]) { res.writeHead(404); return res.end("not found"); }
+    fs.readFile(file, (e, buf) => {
+      if (e) { res.writeHead(404); return res.end("not found"); }
+      res.writeHead(200, { "Content-Type": MIME[ext], "Cache-Control": "no-cache" }); res.end(buf);
+    });
+  });
+  server.on("error", (e) => { log("stream server: " + e.message); server = null; });
+  server.listen(streamPort(), "127.0.0.1", () => log("OBS browser source at http://127.0.0.1:" + streamPort() + "/"));
+}
+function stopStream() {
+  if (!server) return;
+  for (const c of clients) c.end();
+  clients.clear(); server.close(); server = null;
+}
+
+function toast(text) {
+  if (win && !win.isDestroyed()) win.webContents.send("toast", text);
+  sse("toast", text);
+}
+
+// one place that changes a setting (writes into the active game profile when the key belongs to the look)
+function setKey(key, value) {
+  const prof = activeGame && cfg.profiles && cfg.profiles[activeGame];
+  const tgt = prof && PROFILE_KEYS.includes(key) ? prof : cfg;
+  tgt[key] = value;
+  if (key === "display") { const d = screen.getAllDisplays().find((x) => String(x.id) === String(value)); if (d) tgt.display_hint = hintOf(d); }
+  if (["pos_x", "pos_y", "scale", "display"].includes(key)) placeOverlay();
+  if (key === "real_glass" || key === "hide_from_capture") applyGlass();
+  if (key === "stream") value ? startStream() : stopStream();
+  if (key === "autostart" && !TEST) app.setLoginItemSettings({ openAtLogin: !!value, args: [] });
+  saveCfg(); sendConfig(); push();
+}
+function cycleTheme(dir) {
+  const ids = THEME_IDS.filter((t) => t !== "custom" || cfg.custom_frame || cfg.custom_plate);
+  const i = Math.max(0, ids.indexOf(eff().theme || "cyber"));
+  const t = ids[(i + dir + ids.length) % ids.length];
+  setKey("theme", t);
+  toast("STYLE · " + (THEME_NAMES[t] || t.toUpperCase()));
+}
+const safeKey = (k) => String(k || "").toLowerCase().replace(/[^a-z0-9._-]/g, "").slice(0, 40);
+const IMG_EXT = [".png", ".gif", ".webp", ".jpg", ".jpeg"];
+
 // ------------------------------------------------------------------ window
 app.commandLine.appendSwitch("disable-renderer-backgrounding");
 const TEST = SHOT || argv.includes("--burst");
@@ -256,31 +401,32 @@ function displays() {
     .map((d, i) => ({ id: String(d.id), n: i + 1, primary: d.id === prim, x: d.bounds.x, y: d.bounds.y,
                       w: d.bounds.width, h: d.bounds.height, label: d.label || "" }));
 }
-function pickDisplay() {
+function pickDisplay(E = eff()) {
   const all = screen.getAllDisplays();
-  return all.find((d) => String(d.id) === String(cfg.display))
-      || (cfg.display_hint && all.find((d) => hintOf(d) === cfg.display_hint))
+  return all.find((d) => String(d.id) === String(E.display))
+      || (E.display_hint && all.find((d) => hintOf(d) === E.display_hint))
       || screen.getPrimaryDisplay();
 }
-function hudSize(d) {
-  const sc = cfg.scale || 1;
+function hudSize(d, E = eff()) {
+  const sc = E.scale || 1;
   return { W: Math.round(400 * sc), H: Math.round(Math.min(d.height * 0.66, 660 * sc)) };
 }
+const D = {};   // derived placement facts, sent along with the config
 function placeOverlay() {
-  const disp = pickDisplay(), d = disp.bounds, { W, H } = hudSize(d);
   if (cfg.pos_x == null || cfg.pos_y == null) {          // migrate the old side + height settings
+    const d0 = pickDisplay(cfg).bounds, { H: H0 } = hudSize(d0, cfg);
     cfg.pos_x = cfg.anchor === "right" ? 1 : 0;
-    cfg.pos_y = clamp01((Math.round(d.height * (cfg.top ?? 0.33)) - 40) / Math.max(1, d.height - H));
+    cfg.pos_y = clamp01((Math.round(d0.height * (cfg.top ?? 0.33)) - 40) / Math.max(1, d0.height - H0));
   }
-  const fx = clamp01(cfg.pos_x), fy = clamp01(cfg.pos_y);
+  const E = eff(), disp = pickDisplay(E), d = disp.bounds, { W, H } = hudSize(d, E);
+  const fx = clamp01(E.pos_x), fy = clamp01(E.pos_y);
   const x = Math.round(d.x + fx * (d.width - W)), y = Math.round(d.y + fy * (d.height - H));
-  cfg.anchor = fx > 0.55 ? "right" : "left";              // heads hug the nearest edge, names point inward
-  cfg._valign = fy > 0.6 ? "bottom" : "top";              // near the bottom the list grows upward
+  Object.assign(D, {
+    anchor: fx > 0.55 ? "right" : "left",               // heads hug the nearest edge, names point inward
+    _valign: fy > 0.6 ? "bottom" : "top",               // near the bottom the list grows upward
+    _display: String(disp.id), _win: { x: x - d.x, y: y - d.y }, _screen: { w: d.width, h: d.height }, _hud: { w: W, h: H },
+  });
   if (win) win.setBounds({ x, y, width: W, height: H });
-  cfg._display = String(disp.id);
-  cfg._win = { x: x - d.x, y: y - d.y };
-  cfg._screen = { w: d.width, h: d.height };
-  cfg._hud = { w: W, h: H };
   return { x, y, width: W, height: H };
 }
 
@@ -301,13 +447,15 @@ function identify() {
 }
 
 function sendConfig() {
-  cfg._displays = displays();
-  for (const w of [win, panel]) if (w && !w.isDestroyed()) w.webContents.send("config", { ...cfg, demo: DEMO });
+  const out = { ...eff(), ...D, _displays: displays(), _game: activeGame, _running: runningApps, _stream_port: streamPort(),
+                _stream_on: !!server, demo: DEMO };
+  for (const w of [win, panel]) if (w && !w.isDestroyed()) w.webContents.send("config", out);
+  sse("config", streamCfg());
 }
 
 function applyGlass() {
   if (!win) return;
-  win.setContentProtection(!!cfg.real_glass);    // the HUD must not see itself in the capture
+  win.setContentProtection(!!cfg.real_glass || !!cfg.hide_from_capture);    // the HUD must not see itself in the capture
 }
 
 function openPanel() {
@@ -362,33 +510,88 @@ app.whenReady().then(() => {
 
   ipcMain.on("ready", () => { sendConfig(); push(); });
   ipcMain.on("setMany", (_e, obj) => {
-    for (const [k, v] of Object.entries(obj || {})) if (["pos_x", "pos_y"].includes(k)) cfg[k] = clamp01(v);
+    const prof = activeGame && cfg.profiles && cfg.profiles[activeGame], tgt = prof || cfg;
+    for (const [k, v] of Object.entries(obj || {})) if (["pos_x", "pos_y"].includes(k)) tgt[k] = clamp01(v);
     placeOverlay(); saveCfg(); sendConfig(); push();
   });
+  // per-person looks (saved by username)
+  ipcMain.on("person", (_e, { key, patch }) => {
+    const k = String(key || "").toLowerCase(); if (!k) return;
+    const next = { ...(cfg.people[k] || {}), ...(patch || {}) };
+    for (const [a, b] of Object.entries(next)) if (b === null || b === "" || b === false) delete next[a];
+    if (Object.keys(next).length) cfg.people[k] = next; else delete cfg.people[k];
+    saveCfg(); sendConfig(); push();
+  });
+  ipcMain.handle("pickHead", async (_e, key) => {
+    const k = safeKey(key); if (!k) return false;
+    const r = await dialog.showOpenDialog(panel, { title: "Pick a head image for " + k, properties: ["openFile"],
+      filters: [{ name: "Images", extensions: ["png", "gif", "webp", "jpg", "jpeg"] }] });
+    if (r.canceled || !r.filePaths[0]) return false;
+    fs.mkdirSync(HEADS, { recursive: true });
+    for (const e of IMG_EXT) try { fs.unlinkSync(path.join(HEADS, k + e)); } catch {}
+    fs.copyFileSync(r.filePaths[0], path.join(HEADS, k + path.extname(r.filePaths[0]).toLowerCase()));
+    push(); sendConfig(); return true;
+  });
+  ipcMain.on("clearHead", (_e, key) => {
+    const k = safeKey(key); if (!k) return;
+    for (const e of IMG_EXT) try { fs.unlinkSync(path.join(HEADS, k + e)); } catch {}
+    push(); sendConfig();
+  });
+  // MY ART style: your own frame + plate images, copied into NovaHeads/custom
+  ipcMain.handle("pickArt", async (_e, kind) => {
+    if (!["frame", "plate"].includes(kind)) return false;
+    const r = await dialog.showOpenDialog(panel, { title: kind === "frame" ? "Pick an avatar frame (transparent PNG)" : "Pick a name plate image",
+      properties: ["openFile"], filters: [{ name: "Images", extensions: ["png", "webp", "gif", "jpg", "jpeg"] }] });
+    if (r.canceled || !r.filePaths[0]) return false;
+    fs.mkdirSync(CUSTOM, { recursive: true });
+    for (const f of fs.readdirSync(CUSTOM)) if (f.startsWith(kind + "-")) try { fs.unlinkSync(path.join(CUSTOM, f)); } catch {}
+    const dst = path.join(CUSTOM, `${kind}-${Date.now()}${path.extname(r.filePaths[0]).toLowerCase()}`);
+    fs.copyFileSync(r.filePaths[0], dst);
+    cfg["custom_" + kind] = "file:///" + dst.replace(/\\/g, "/");
+    if ((eff().theme || "cyber") !== "custom") setKey("theme", "custom"); else { saveCfg(); sendConfig(); }
+    return true;
+  });
+  ipcMain.on("clearArt", () => {
+    try { for (const f of fs.readdirSync(CUSTOM)) fs.unlinkSync(path.join(CUSTOM, f)); } catch {}
+    cfg.custom_frame = cfg.custom_plate = null; saveCfg(); sendConfig();
+  });
+  // game profiles
+  ipcMain.on("profileSave", (_e, name) => {
+    const g = String(name || "").toLowerCase().replace(/\.exe$/, "").trim(); if (!g) return;
+    const E = eff(), snap = {};
+    for (const k of PROFILE_KEYS) if (E[k] !== undefined) snap[k] = E[k];
+    cfg.profiles = cfg.profiles || {}; cfg.profiles[g] = snap;
+    saveCfg(); log("saved game profile " + g);
+    if (runningApps.some((a) => a.name === g)) { activeGame = g; placeOverlay(); push(); }
+    sendConfig();
+  });
+  ipcMain.on("profileDelete", (_e, name) => {
+    if (!cfg.profiles || !cfg.profiles[name]) return;
+    delete cfg.profiles[name];
+    if (activeGame === name) { activeGame = null; placeOverlay(); push(); }
+    saveCfg(); sendConfig();
+  });
+  ipcMain.on("statsReset", () => { stats.since = Date.now(); stats.people = {}; talkStart.clear(); trackTalk(); });
   ipcMain.on("identify", identify);
   const replace = () => { placeOverlay(); sendConfig(); push(); };
   screen.on("display-added", replace); screen.on("display-removed", replace); screen.on("display-metrics-changed", replace);
-  ipcMain.on("set", (_e, { key, value }) => {
-    cfg[key] = value;
-    if (key === "display") { const d = screen.getAllDisplays().find((x) => String(x.id) === String(value)); if (d) cfg.display_hint = hintOf(d); }
-    if (["pos_x", "pos_y", "scale", "display"].includes(key)) placeOverlay();
-    if (key === "real_glass") applyGlass();
-    if (key === "autostart" && !TEST) app.setLoginItemSettings({ openAtLogin: !!value, args: [] });
-    saveCfg();
-    sendConfig();
-    push();
-  });
+  ipcMain.on("set", (_e, { key, value }) => setKey(key, value));
   ipcMain.on("openHeads", () => { fs.mkdirSync(HEADS, { recursive: true }); shell.openPath(HEADS); });
   ipcMain.on("win", (_e, what) => { if (!panel) return; what === "min" ? panel.minimize() : panel.close(); });
 
   globalShortcut.register("Control+Alt+H", () => (win.isVisible() ? win.hide() : win.showInactive()));
   globalShortcut.register("Control+Alt+J", openPanel);
   globalShortcut.register("Control+Alt+Shift+H", () => app.quit());
+  globalShortcut.register("Control+Alt+Right", () => cycleTheme(1));
+  globalShortcut.register("Control+Alt+Left", () => cycleTheme(-1));
   if (!TEST) setTimeout(() => { sendConfig(); }, 500);
   if (!TEST) { makeTray(); if (FIRST_RUN || argv.includes("--panel")) openPanel(); saveCfg(); }
   if (argv.includes("--panel") && TEST) openPanel();
 
   if (DEMO) demo(); else new RPC().start();
+  scanApps();
+  if (cfg.stream || argv.includes("--stream")) startStream();
+  setInterval(() => { if (panel && !panel.isDestroyed()) panel.webContents.send("stats", statsView()); }, 1000);
 
   const target = () => (argv.includes("--shoot-panel") && panel ? panel : win);
   if (SHOT) setTimeout(async () => {
@@ -409,7 +612,7 @@ app.whenReady().then(() => {
   // --cfg key=value,key=value : override config for a test run (not saved)
   const OV = arg("--cfg");
   if (OV) { for (const kv of OV.split(",")) { const [k, v] = kv.split("="); cfg[k] = v === "true" ? true : v === "false" ? false : isNaN(+v) ? v : +v; } placeOverlay(); sendConfig(); }
-  if (TEST) log("overlay bounds " + JSON.stringify(win.getBounds()) + " on display " + cfg._display + " anchor " + cfg.anchor + " valign " + cfg._valign + " displays " + JSON.stringify(displays().map((d) => [d.id, d.x, d.w])));
+  if (TEST) log("overlay bounds " + JSON.stringify(win.getBounds()) + " on display " + D._display + " anchor " + D.anchor + " valign " + D._valign + " displays " + JSON.stringify(displays().map((d) => [d.id, d.x, d.w])));
   if (SECONDS) setTimeout(() => app.quit(), SECONDS * 1000);
 });
 

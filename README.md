@@ -31,6 +31,7 @@ official local RPC.
 | `Ctrl+Alt+J` | open the control panel (also: click the tray icon) |
 | `Ctrl+Alt+H` | show / hide the HUD |
 | `Ctrl+Alt+Shift+H` | quit |
+| `Ctrl+Alt+←` / `→` | switch style mid-game |
 
 ## The control panel
 
@@ -38,13 +39,20 @@ official local RPC.
 
 - **Style**: Cyber, Glass Cube, Soft, Flow, Synthwave, Terminal, Mono, Holo, Comic, Sakura, Ember, plus the art styles
   Ink 墨 (calligraphy), Noir (b&w film), Oni 鬼 (samurai), Anime (manga panel), Pop (cutesy stickers) and 8-Bit. Every card is a live preview.
+  **My Art** builds a style from your own avatar-frame and name-plate images.
 - **Color**: palettes that recolour any style (Aurora, Sunset, Ocean, Candy, Toxic, Blood, Ice, Gold) plus an accent override.
-- **Layout**: left/right side, height, size, idle opacity, header/names, show only who's talking, hide yourself.
+- **Layout**: size, idle opacity, **compact mode** (avatars in a row, the talker's name pops up), header/names, only who's talking, hide yourself.
 - **Layout**: pick **which monitor** the HUD is on from a map of your screens (IDENTIFY flashes each screen's number),
   then drag the HUD box anywhere or use the 9-spot grid. Heads hug the nearest edge and the list grows upward near the bottom.
 - **Effects**: join/leave animation (each style's own signature: glitch, brush stroke, katana slash, film flicker, sticker pop,
   8-bit pop + pixel burst... or soft / none), synthesized **sound effects** per style with a volume slider, particles, and **real glass blur**.
+- **People**: give anyone their own talk colour, nickname or head image, or hide them. Saved by username.
+- **Games**: save a look (style, colours, screen, position, size) for a game; the HUD switches to it by itself while that game runs.
+- **Stream**: an **OBS browser source** link (this PC only) with a transparent background, plus "hide my overlay from capture" so it never shows twice.
+  Add `?theme=oni`, `?palette=gold` or `?scale=1.4` to the link for a stream-only look.
+- **Stats**: who talked the most this session.
 - **Setup**: start with Windows, custom heads folder.
+- Also: "Nova JOINED / LEFT" banners in your style's look, and a glow that warms up the longer someone keeps talking.
 
 ![Palettes](docs/panel-color.png)
 

@@ -109,6 +109,32 @@ h2{font:600 18px/1 'Chakra Petch';letter-spacing:.1em;margin:4px 0 4px}
 .posval{font:400 10.5px/1.5 'JetBrains Mono';color:var(--dim);margin-left:auto}
 .posval b{color:var(--txt);font-weight:500}
 
+
+/* v2.3 pages */
+select{all:unset;cursor:pointer;min-width:180px;max-width:240px;padding:8px 10px;font:400 11px/1.2 'JetBrains Mono';border:1px solid var(--edge);background:rgba(0,0,0,.28);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+select option{background:#151a26;color:var(--txt)}
+.btn.sm{padding:7px 9px;font-size:10px}
+.person{gap:10px}
+.person .pav{width:34px;height:34px;object-fit:cover;flex:0 0 34px;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.person .t span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+.person input.nick{all:unset;width:120px;padding:7px 9px;font:400 11px 'JetBrains Mono';border:1px solid var(--edge);background:rgba(0,0,0,.25)}
+.person input.nick:focus{border-color:var(--c)}
+.person .hl{font:400 9.5px 'JetBrains Mono';color:var(--dim);margin-left:4px}
+.person.off{opacity:.6}
+.badge{font:500 9px/1 'JetBrains Mono';letter-spacing:.12em;padding:4px 6px;border:1px solid var(--c);color:var(--c)}
+.statbox{padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+.srow{display:grid;grid-template-columns:24px 26px 130px 1fr 52px 40px;align-items:center;gap:10px;font:400 11px 'JetBrains Mono';color:var(--dim)}
+.srow b{font:600 12.5px 'Chakra Petch';color:var(--txt);letter-spacing:.05em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow img,.srow .noav{width:26px;height:26px;object-fit:cover;background:rgba(255,255,255,.08)}
+.srow .bar{height:8px;background:rgba(255,255,255,.08)}
+.srow .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--c),#A78BFA);box-shadow:0 0 10px rgba(77,243,255,.4)}
+.srow:first-child .bar i{background:linear-gradient(90deg,#FFD23F,#FF9F1C)}
+.srow .tm{color:var(--txt);text-align:right}
+.statbox .empty{font:400 11px 'JetBrains Mono';color:var(--dim);padding:6px 0}
+.gbanner b{color:var(--c)}
+.surl{font:500 12px 'JetBrains Mono';color:var(--c);user-select:text}
+
 /* palettes */
 .pal{cursor:pointer;padding:12px}
 .pal.on{border-color:var(--c);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),5px 5px 0 rgba(77,243,255,.18)}
@@ -176,15 +202,25 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
     <button data-p="color">COLOR <span class="k">02</span></button>
     <button data-p="layout">LAYOUT <span class="k">03</span></button>
     <button data-p="fx">EFFECTS <span class="k">04</span></button>
-    <button data-p="setup">SETUP <span class="k">05</span></button>
+    <button data-p="people">PEOPLE <span class="k">05</span></button>
+    <button data-p="games">GAMES <span class="k">06</span></button>
+    <button data-p="stream">STREAM <span class="k">07</span></button>
+    <button data-p="stats">STATS <span class="k">08</span></button>
+    <button data-p="setup">SETUP <span class="k">09</span></button>
     <div class="spacer"></div>
-    <div class="hint glass"><b>Ctrl+Alt+J</b> this panel<br><b>Ctrl+Alt+H</b> hide HUD<br><b>Ctrl+Alt+Shift+H</b> quit</div>
+    <div class="hint glass"><b>Ctrl+Alt+J</b> this panel<br><b>Ctrl+Alt+H</b> hide HUD<br><b>Ctrl+Alt+Shift+H</b> quit<br><b>Ctrl+Alt+← →</b> switch style</div>
   </nav>
 
   <div class="content">
     <section class="page on" id="p-style">
       <h2>STYLE</h2><div class="sub">// pick a look. every card is a live preview.</div>
       <div class="grid" id="themes"></div>
+      <div class="rows" style="margin-top:14px">
+        <div class="fr glass"><div class="t"><b>MY ART</b><span>your own avatar frame + name plate images for the MY ART style (transparent PNGs work best)</span></div>
+          <button class="btn" id="artFrame">FRAME</button><button class="btn" id="artPlate">PLATE</button><button class="btn" id="artClear">CLEAR</button></div>
+        <div class="fr glass"><div class="t"><b>PLATE EDGES</b><span>how much of the plate image's ends stays unstretched</span></div>
+          <input type="range" data-k="custom_slice" min="5" max="49" step="1"><span class="val" data-for="custom_slice"></span></div>
+      </div>
     </section>
 
     <section class="page" id="p-color">
@@ -208,6 +244,7 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
           <input type="range" data-k="scale" min="0.7" max="1.8" step="0.05"><span class="val" data-for="scale"></span></div>
         <div class="fr glass"><div class="t"><b>IDLE OPACITY</b><span>how faded people are when quiet</span></div>
           <input type="range" data-k="idle_opacity" min="0.3" max="1" step="0.05"><span class="val" data-for="idle_opacity"></span></div>
+        <div class="fr glass"><div class="t"><b>COMPACT</b><span>avatars only, in a row. the talker's name pops up under them</span></div><div class="tog" data-k="compact"></div></div>
         <div class="fr glass"><div class="t"><b>HEADER</b><span>"VOICE — CHANNEL 06" line</span></div><div class="tog" data-k="show_header"></div></div>
         <div class="fr glass"><div class="t"><b>NAMES</b><span>name plates next to heads</span></div><div class="tog" data-k="show_names"></div></div>
         <div class="fr glass"><div class="t"><b>ONLY WHO'S TALKING</b><span>hide quiet people</span></div><div class="tog" data-k="only_speaking"></div></div>
@@ -225,10 +262,53 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
           <button class="btn" id="sfxTest">TEST</button><div class="tog" data-k="sfx"></div></div>
         <div class="fr glass"><div class="t"><b>SOUND VOLUME</b><span>how loud the HUD sounds are over your game</span></div>
           <input type="range" data-k="sfx_volume" min="0" max="1" step="0.05"><span class="val" data-for="sfx_volume"></span></div>
+        <div class="fr glass"><div class="t"><b>JOIN / LEAVE BANNERS</b><span>a little "Nova JOINED" plate, plus style names when you switch</span></div><div class="tog" data-k="toasts"></div></div>
         <div class="fr glass"><div class="t"><b>PARTICLES</b><span>petals / embers / sparks on styles that have them</span></div><div class="tog" data-k="particles"></div></div>
         <div class="fr glass"><div class="t"><b>REAL GLASS BLUR</b><span>see the actual game blurred through the plates</span>
           <div class="warn">⚠ hides the HUD from recordings & screenshots (NVIDIA/OBS) — Windows rule for capture.</div></div>
           <div class="tog" data-k="real_glass"></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="p-people">
+      <h2>PEOPLE</h2><div class="sub">// give friends their own colour, nickname or head. saved by username, works in every style.</div>
+      <div class="rows" id="plist"></div>
+    </section>
+
+    <section class="page" id="p-games">
+      <h2>GAMES</h2><div class="sub">// a saved look per game. the HUD switches to it by itself while that game is running.</div>
+      <div class="rows">
+        <div class="fr glass gbanner"><div class="t"><b id="gstate">DEFAULT LOOK</b><span id="gstate2"></span></div></div>
+        <div class="fr glass"><div class="t"><b>SAVE THE CURRENT LOOK FOR A GAME</b><span>style, colours, screen, position, size &amp; compact are saved for it</span></div>
+          <select id="gpick"></select><button class="btn" id="gsave">SAVE</button></div>
+        <div class="rows" id="glist"></div>
+      </div>
+    </section>
+
+    <section class="page" id="p-stream">
+      <h2>STREAM</h2><div class="sub">// put the HUD on stream with OBS, transparent background, no window capture.</div>
+      <div class="rows">
+        <div class="fr glass"><div class="t"><b>OBS BROWSER SOURCE</b><span>a link that only works on this PC (127.0.0.1), for OBS / Streamlabs</span></div><div class="tog" data-k="stream"></div></div>
+        <div class="fr glass"><div class="t"><b>LINK</b><span class="surl" id="surl">turn the browser source on first</span></div><button class="btn" id="scopy">COPY</button></div>
+        <div class="fr glass"><div class="t"><b>STREAM FACES</b><span>which side the heads sit on in the stream copy</span></div>
+          <div class="seg" data-k="stream_anchor"><button data-v="left">LEFT</button><button data-v="right">RIGHT</button></div></div>
+        <div class="fr glass"><div class="t"><b>HIDE MY OVERLAY FROM CAPTURE</b><span>display / game capture won't see the on-screen HUD, so it never shows twice on stream</span></div>
+          <div class="tog" data-k="hide_from_capture"></div></div>
+        <div class="code glass">
+          <b>OBS SETUP</b><br>
+          1. Sources → <b>+</b> → <b>Browser</b><br>
+          2. URL: the link above · Width <b>420</b> · Height <b>720</b><br>
+          3. Done. The background is already transparent.<br><br>
+          <b>TIP</b> add <b>?theme=oni</b>, <b>?palette=gold</b> or <b>?scale=1.4</b> to the link to give the stream its own look.
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="p-stats">
+      <h2>STATS</h2><div class="sub" id="ssub">// who talked the most this session.</div>
+      <div class="rows">
+        <div class="glass statbox" id="slist"><div class="empty">nobody has talked yet</div></div>
+        <div class="fr glass"><div class="t"><b>NEW SESSION</b><span>reset the talk times</span></div><button class="btn" id="sreset">RESET</button></div>
       </div>
     </section>
 
@@ -271,7 +351,7 @@ const THEMES = [
   ["synth", "SYNTHWAVE", "neon drive"], ["terminal", "TERMINAL", "phosphor"], ["mono", "MONO", "swiss"], ["holo", "HOLO", "iridescent"],
   ["comic", "COMIC", "spider-verse"], ["sakura", "SAKURA", "petals"], ["ember", "EMBER", "warm glow"],
   ["ink", "INK 墨", "calligraphy"], ["noir", "NOIR", "b&w film"], ["oni", "ONI 鬼", "samurai"], ["anime", "ANIME", "manga panel"],
-  ["pop", "POP", "cutesy"], ["pixel", "8-BIT", "pixel pop"],
+  ["pop", "POP", "cutesy"], ["pixel", "8-BIT", "pixel pop"], ["custom", "MY ART", "your images"],
 ];
 const PALS = [
   ["default", "THEME", ["#4DF3FF", "#3DFF9A", "#FF3DA5", "#FF9F1C", "#FFD23F", "#FF4D6A"]],
@@ -428,15 +508,15 @@ function apply() {
   document.querySelectorAll(".pal").forEach((c) => c.classList.toggle("on", c.dataset.pal === (cfg.palette || "default")));
   document.querySelectorAll(".seg").forEach((s) => s.querySelectorAll("button").forEach((b) =>
     b.classList.toggle("on", String(cfg[s.dataset.k] ?? (s.dataset.k === "fx" ? "auto" : "left")) === b.dataset.v)));
-  document.querySelectorAll(".tog").forEach((t) => t.classList.toggle("on", t.dataset.k === "particles" || t.dataset.k === "sfx" || t.dataset.k === "show_header" || t.dataset.k === "show_names"
+  document.querySelectorAll(".tog").forEach((t) => t.classList.toggle("on", t.dataset.k === "particles" || t.dataset.k === "sfx" || t.dataset.k === "toasts" || t.dataset.k === "show_header" || t.dataset.k === "show_names"
     ? cfg[t.dataset.k] !== false : !!cfg[t.dataset.k]));
   document.querySelectorAll("input[type=range]").forEach((r) => {
-    const v = cfg[r.dataset.k] ?? { top: .33, scale: 1, idle_opacity: .8, sfx_volume: .5 }[r.dataset.k];
+    const v = cfg[r.dataset.k] ?? { top: .33, scale: 1, idle_opacity: .8, sfx_volume: .5, custom_slice: 30 }[r.dataset.k];
     r.value = v; r.style.setProperty("--p", ((v - r.min) / (r.max - r.min)) * 100 + "%");
-    document.querySelector(`.val[data-for=${r.dataset.k}]`).textContent = r.dataset.k === "top" ? Math.round(v * 100) + "%" : v.toFixed(2);
+    document.querySelector(`.val[data-for=${r.dataset.k}]`).textContent = r.dataset.k === "top" ? Math.round(v * 100) + "%" : r.dataset.k === "custom_slice" ? v + "%" : v.toFixed(2);
   });
   if (cfg.accent_override) document.getElementById("accent").value = cfg.accent_override;
-  drawMap();
+  drawMap(); drawGames(); drawStream(); drawPeople();
   document.getElementById("pvname").textContent = (THEMES.find((t) => t[0] === (cfg.theme || "cyber")) || ["", "CYBER"])[1];
   for (const h of huds) h.hud.setConfig({ ...cfg, theme: h.fixedTheme || cfg.theme, anchor: "left", only_speaking: false, hide_self: false,
                                           palette: h.fixedTheme ? "default" : cfg.palette });
@@ -454,6 +534,106 @@ window.nova.onState((s) => {
     ? (s.channel ? `CONNECTED · <b>${s.channel.toUpperCase()}</b> · ${String((s.people || []).length).padStart(2, "0")}` : "CONNECTED · NOT IN VOICE")
     : (s.status || "").toUpperCase();
 });
+
+// ================================================================ v2.3 pages
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// ---------- people
+const $plist = document.getElementById("plist");
+let roster = [], rosterKey = "";
+window.nova.onState((s) => { roster = s.roster || []; drawPeople(); });
+function drawPeople(force) {
+  const a = document.activeElement;
+  if (!force && a && $plist.contains(a) && a.tagName === "INPUT") return;      // don't redraw under the cursor
+  const saved = cfg.people || {};
+  const list = roster.map((p) => ({ ...p, key: String(p.user || p.id).toLowerCase() }));
+  for (const k of Object.keys(saved)) if (!list.some((p) => p.key === k)) list.push({ key: k, user: k, name: saved[k].name || k, avatar: null, off: true });
+  const key = JSON.stringify([list.map((p) => [p.key, p.avatar, p.off, p.custom]), saved]);
+  if (!force && key === rosterKey) return;
+  rosterKey = key;
+  if (!list.length) { $plist.innerHTML = `<div class="code glass">Join a voice channel and everyone in it shows up here.</div>`; return; }
+  $plist.innerHTML = "";
+  for (const p of list) {
+    const pc = saved[p.key] || {};
+    const row = document.createElement("div");
+    row.className = "fr glass person" + (p.off ? " off" : "");
+    row.innerHTML = `${p.avatar ? `<img class="pav" src="${esc(p.avatar)}" alt="">` : `<div class="pav" style="background:rgba(255,255,255,.08)"></div>`}
+      <div class="t"><b>${esc(pc.name || p.name)}</b><span>@${esc(p.user)}${p.off ? " · not here now" : ""}</span></div>
+      <input class="nick" placeholder="nickname" maxlength="32" value="${esc(pc.name || "")}">
+      <input type="color" class="acc" title="talk colour" value="${esc(pc.accent || "#3DFF9A")}">
+      <button class="btn sm" data-a="acc0" title="back to the style's colour">↺</button>
+      <button class="btn sm" data-a="head" title="use your own image for them">HEAD</button>
+      ${p.custom ? `<button class="btn sm" data-a="head0" title="remove custom head">✕</button>` : ""}
+      <span class="hl">HIDE</span><div class="tog ${pc.hidden ? "on" : ""}"></div>`;
+    const P = (patch) => window.nova.person(p.key, patch);
+    row.querySelector(".nick").onchange = (e) => P({ name: e.target.value.trim() || null });
+    let accT = 0;
+    row.querySelector(".acc").oninput = (e) => { clearTimeout(accT); accT = setTimeout(() => P({ accent: e.target.value }), 120); };
+    row.querySelector('[data-a="acc0"]').onclick = () => P({ accent: null });
+    row.querySelector('[data-a="head"]').onclick = () => window.nova.pickHead(p.key);
+    const h0 = row.querySelector('[data-a="head0"]'); if (h0) h0.onclick = () => window.nova.clearHead(p.key);
+    row.querySelector(".tog").onclick = () => P({ hidden: !pc.hidden });
+    if (!pc.accent) row.querySelector(".acc").style.opacity = ".45";
+    $plist.appendChild(row);
+  }
+}
+
+// ---------- games
+const $gpick = document.getElementById("gpick");
+document.getElementById("gsave").onclick = () => { if ($gpick.value) window.nova.profileSave($gpick.value); };
+function themeName(id) { return ((THEMES.find((t) => t[0] === id) || [])[1]) || String(id || "cyber").toUpperCase(); }
+function spotName(x, y) {
+  const v = y < .25 ? "top" : y > .75 ? "bottom" : "middle", h = x < .25 ? "left" : x > .75 ? "right" : "centre";
+  return v === "middle" && h === "centre" ? "centre" : `${v}-${h}`;
+}
+function drawGames() {
+  const prof = cfg.profiles || {}, run = cfg._running || [];
+  const opts = run.length ? run.map((a) => `<option value="${esc(a.name)}">${esc(a.name)}  —  ${esc(a.title)}</option>`).join("")
+                          : `<option value="">open your game, its name shows up here</option>`;
+  if ($gpick.dataset.k !== opts) { const cur = $gpick.value; $gpick.innerHTML = opts; $gpick.dataset.k = opts; if (cur) $gpick.value = cur; }
+  document.getElementById("gstate").innerHTML = cfg._game ? `PLAYING <b>${esc(cfg._game.toUpperCase())}</b>` : "DEFAULT LOOK";
+  document.getElementById("gstate2").textContent = cfg._game
+    ? "every change you make in the panel now is saved to this game's profile"
+    : "no game with a profile is running, so you're editing the default look";
+  const $gl = document.getElementById("glist");
+  const names = Object.keys(prof);
+  const html = names.length ? names.map((g) => {
+    const p = prof[g], d = (cfg._displays || []).find((m) => m.id === String(p.display));
+    return `<div class="fr glass"><div class="t"><b>${esc(g.toUpperCase())}</b><span>${esc(themeName(p.theme))} · ${d ? "screen " + d.n : "main screen"} · ${spotName(p.pos_x ?? 0, p.pos_y ?? 0)} · ×${(p.scale || 1).toFixed(2)}${p.compact ? " · compact" : ""}</span></div>
+      ${cfg._game === g ? `<span class="badge">ACTIVE</span>` : ""}<button class="btn" data-del="${esc(g)}">DELETE</button></div>`;
+  }).join("") : `<div class="code glass">No game profiles yet. Open a game, pick it above and press SAVE. Next time it runs, the HUD switches by itself.</div>`;
+  if ($gl.dataset.k !== html) { $gl.innerHTML = html; $gl.dataset.k = html;
+    $gl.querySelectorAll("[data-del]").forEach((b) => b.onclick = () => window.nova.profileDelete(b.dataset.del)); }
+}
+
+// ---------- stream
+const streamUrl = () => `http://127.0.0.1:${cfg._stream_port || 7377}/`;
+document.getElementById("scopy").onclick = (e) => {
+  if (!cfg.stream) return set("stream", true);
+  navigator.clipboard.writeText(streamUrl()).then(() => { e.target.textContent = "COPIED"; setTimeout(() => e.target.textContent = "COPY", 1200); });
+};
+function drawStream() {
+  document.getElementById("surl").textContent = cfg.stream ? streamUrl() : "turn the browser source on first";
+  document.getElementById("scopy").textContent = cfg.stream ? "COPY" : "TURN ON";
+}
+
+// ---------- stats
+const fmtT = (ms) => { const s = Math.round(ms / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+document.getElementById("sreset").onclick = () => window.nova.statsReset();
+window.nova.onStats((st) => {
+  if (!document.getElementById("p-stats").classList.contains("on")) return;
+  const max = Math.max(1, ...st.people.map((p) => p.ms));
+  document.getElementById("ssub").textContent = `// who talked the most · since ${new Date(st.since).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+  document.getElementById("slist").innerHTML = st.people.length ? st.people.slice(0, 12).map((p, i) =>
+    `<div class="srow"><span>${String(i + 1).padStart(2, "0")}</span>${p.avatar ? `<img src="${esc(p.avatar)}" alt="">` : `<i class="noav"></i>`}
+     <b>${esc(p.name)}</b><div class="bar"><i style="width:${(p.ms / max * 100).toFixed(1)}%"></i></div><span class="tm">${fmtT(p.ms)}</span><span>${p.turns}×</span></div>`).join("")
+    : `<div class="empty">nobody has talked yet</div>`;
+});
+
+// ---------- my art
+document.getElementById("artFrame").onclick = () => window.nova.pickArt("frame");
+document.getElementById("artPlate").onclick = () => window.nova.pickArt("plate");
+document.getElementById("artClear").onclick = () => window.nova.clearArt();
 window.nova.ready();
 </script>
 </body>

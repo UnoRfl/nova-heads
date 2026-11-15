@@ -19,7 +19,7 @@
   function makeRow(p) {
     const li = document.createElement("li");
     li.className = "row pre";
-    li.innerHTML = `<div class="av"><div class="frame"><img alt=""></div><div class="scan"></div>
+    li.innerHTML = `<div class="av"><i class="heat"></i><div class="frame"><img alt=""></div><div class="scan"></div>
         <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br brr"></i><div class="st"></div></div>
       <div class="plate"><i class="htp"></i><span class="idx"></span><span class="name"></span><span class="you"></span><span class="tag"></span>
         <span class="wave"><i></i><i></i><i></i><i></i><i></i></span></div>`;
@@ -222,10 +222,31 @@
   window.createHud = function (root, opts = {}) {
     ensureDefs();
     root.classList.add("hud", "empty");
-    root.innerHTML = `<div class="hdr"><span class="pip"></span><span class="lb">VOICE</span><span class="rule"></span><span class="ch"></span><span class="n"></span></div><ul class="list"></ul>`;
+    root.innerHTML = `<div class="hdr"><span class="pip"></span><span class="lb">VOICE</span><span class="rule"></span><span class="ch"></span><span class="n"></span></div><ul class="list"></ul><div class="toasts"></div>`;
     const $list = root.querySelector(".list"), $hdr = root.querySelector(".hdr");
     const rows = new Map();
-    let cfg = {}, last = null;
+    let cfg = {}, last = null, prevChannel = null, rendered = false;
+    const $toasts = root.querySelector(".toasts");
+    // little banners: "Nova JOINED", "STYLE · ONI" ... styled as the theme's own name plate
+    function toast(text, tag = "", kind = "info") {
+      if (cfg.toasts === false) return;
+      const t = document.createElement("div");
+      t.className = "toast " + kind;
+      t.innerHTML = `<div class="plate"><span class="name"></span><span class="tag"></span></div>`;
+      t.querySelector(".name").textContent = text;
+      t.querySelector(".tag").textContent = tag;
+      $toasts.appendChild(t);
+      while ($toasts.children.length > 3) $toasts.firstChild.remove();
+      setTimeout(() => t.remove(), 2900);
+    }
+    // "heat": the longer someone keeps talking, the warmer the glow behind them (Discord doesn't share loudness)
+    setInterval(() => {
+      const now = performance.now();
+      for (const r of rows.values()) {
+        if (r.el.classList.contains("talk")) { r.t0 = r.t0 || now; r.el.style.setProperty("--heat", Math.min(1, (now - r.t0) / 4000).toFixed(2)); }
+        else if (r.t0) { r.t0 = 0; r.el.style.setProperty("--heat", "0"); }
+      }
+    }, 200);
 
     const fxMode = () => {
       const pick = cfg.fx && cfg.fx !== "auto" ? cfg.fx : getComputedStyle(root).getPropertyValue("--fx").trim() || "glitch";
@@ -266,9 +287,11 @@
       const people = s.people || [];
       const live = new Set(people.map((p) => p.id));
       let batch = 0;
+      const sameRoom = rendered && !!s.channel && s.channel === prevChannel;
       for (const [id, r] of rows) {   // leavers first, so they keep their slot while they animate out
         if (!live.has(id)) {
           r.el.classList.add("leaving");
+          if (sameRoom) toast(r.name || "", "LEFT", "left");
           rows.delete(id);
           animate(r.el, "out", () => { r.el.classList.add("gone"); setTimeout(() => r.el.remove(), 320); });
         }
@@ -293,15 +316,17 @@
         if (src !== r.src) { el.querySelector("img").src = src; r.src = src; }
         el.querySelector(".idx").textContent = String(i + 1).padStart(2, "0");
         el.querySelector(".name").textContent = p.name;
+        r.name = p.name;
         el.querySelector(".you").textContent = p.me ? "YOU" : "";
         el.querySelector(".st").innerHTML = p.deaf ? DEAF : p.mute ? MIC_OFF : "";
         el.querySelector(".plate").style.display = cfg.show_names === false ? "none" : "";
-        if (r.fresh) { r.fresh = false; setTimeout(() => animate(el, "in"), 90 * (batch++)); }
+        if (r.fresh) { r.fresh = false; setTimeout(() => animate(el, "in"), 90 * (batch++)); if (sameRoom) toast(p.name, "JOINED", "join"); }
       });
       root.querySelector(".ch").textContent = s.channel || "";
       root.querySelector(".n").textContent = people.length ? String(people.length).padStart(2, "0") : "";
       $hdr.style.display = cfg.show_header === false ? "none" : "";
       root.classList.toggle("empty", !s.channel || !people.length);
+      prevChannel = s.channel; rendered = true;
     }
 
     function setConfig(c) {
@@ -311,12 +336,19 @@
       root.style.removeProperty("--c");
       if (cfg.accent_override) root.style.setProperty("--c", cfg.accent_override);
       root.classList.toggle("right", cfg.anchor === "right");
+      root.classList.toggle("compact", !!cfg.compact);
+      const art = (u) => (u ? `url("${String(u).replace(/"/g, "%22")}")` : "none");
+      root.style.setProperty("--cf", art(cfg.custom_frame));
+      root.style.setProperty("--cp", art(cfg.custom_plate));
+      root.style.setProperty("--cs", (cfg.custom_slice || 30) + "%");
+      root.classList.toggle("has-cf", !!cfg.custom_frame);
+      root.classList.toggle("has-cp", !!cfg.custom_plate);
       root.style.transform = !opts.noScale && cfg.scale && cfg.scale !== 1 ? `scale(${cfg.scale})` : "";
       root.style.setProperty("--idle-op", cfg.idle_opacity ?? .8);
       if (last) render(last);
     }
 
-    return { render, setConfig, replay() { for (const r of rows.values()) animate(r.el, "in"); },
+    return { render, setConfig, toast: (t, tag) => toast(t, tag || "", "info"), replay() { for (const r of rows.values()) animate(r.el, "in"); },
              leaveAll() { for (const r of rows.values()) animate(r.el, "out", () => { r.el.style.opacity = ""; animate(r.el, "in"); }); } };
   };
 

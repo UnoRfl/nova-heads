@@ -80,6 +80,7 @@ window.nova.onConfig((c) => {
   if (c.real_glass) startGlass(); else stopGlass();
 });
 window.nova.onState((s) => hud.render(s));
+window.nova.onToast((t) => hud.toast(t));
 window.nova.ready();
 </script>
 </body>

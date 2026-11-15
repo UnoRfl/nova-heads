@@ -1,6 +1,6 @@
 {
   "name": "nova-heads",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "description": "Custom Discord voice HUD overlay: 11 styles, palettes, glass control panel. No mods, no bot.",
   "private": true,
   "main": "main.js",

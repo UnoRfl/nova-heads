@@ -509,6 +509,26 @@
 .hud[data-theme=pixel] .wave i{width:3px;border-radius:0}
 .hud[data-theme=pixel] .row.talk .wave i{animation-timing-function:steps(3)}
 
+/* ============================================================ 18. MY ART (your own frame + plate images, picked in the panel) */
+.hud[data-theme=custom]{--c:#BFD4FF;--txt:#FFFFFF;--dim:#A8B3C8;--ink:14,16,26;--cut:0px;--fx:pop;--particles:spark;--av:44px;--gap:18px}
+.hud[data-theme=custom] .frame,.hud[data-theme=custom] .row.lit .frame{clip-path:none;inset:2px;padding:2px;border-radius:50%;background:var(--line)}
+.hud[data-theme=custom] .row.talk .frame{background:var(--acc)}
+.hud[data-theme=custom].has-cf .frame,.hud[data-theme=custom].has-cf .row.lit .frame,.hud[data-theme=custom].has-cf .row.talk .frame{inset:8px;padding:0;background:transparent}
+.hud[data-theme=custom] .frame img{clip-path:none;border-radius:50%}
+.hud[data-theme=custom] .av::after{content:"";position:absolute;inset:-3px;pointer-events:none;background:var(--cf) center/contain no-repeat;z-index:2}
+.hud[data-theme=custom] .row.talk .av{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--acc) 70%,transparent))}
+.hud[data-theme=custom].has-cf .row.talk .av::after{animation:nh-bob 1.2s ease-in-out infinite}
+.hud[data-theme=custom] .scan,.hud[data-theme=custom] .br{display:none}
+.hud[data-theme=custom] .plate{clip-path:none;height:30px;margin-left:13px;padding:0 13px;background:rgba(var(--ink),.82);border-radius:6px}
+.hud.right[data-theme=custom] .plate{margin-right:13px}
+.hud[data-theme=custom].has-cp .plate{background:none;border-radius:0;border:solid transparent;border-width:7px 14px;padding:0 2px;
+  border-image:var(--cp) var(--cs,30%) fill / 7px 14px stretch}
+.hud[data-theme=custom] .plate::before,.hud[data-theme=custom] .plate::after{display:none}
+.hud[data-theme=custom] .name{font:700 13px/1.1 'Space Grotesk',sans-serif;text-transform:none;letter-spacing:.01em;text-shadow:0 1px 3px rgba(0,0,0,.75)}
+.hud[data-theme=custom] .row.talk .name{color:#fff;text-shadow:0 0 10px var(--acc),0 1px 3px rgba(0,0,0,.75)}
+.hud[data-theme=custom] .idx{display:none}
+.hud[data-theme=custom] .row.talk .av{transform:scale(1.05)}
+
 /* ============================================================ PALETTES (override any theme's colours) */
 .hud[data-palette=aurora]{--c:#5EEAD4;--s-talk:#34D399;--s-you:#A78BFA;--s-self:#FBBF24;--s-server:#FDE68A;--s-local:#818CF8;--s-deaf:#FB7185}
 .hud[data-palette=sunset]{--c:#FF8A5B;--s-talk:#FFB347;--s-you:#FF5E8A;--s-self:#FF9F1C;--s-server:#FFD166;--s-local:#C77DFF;--s-deaf:#EF233C}

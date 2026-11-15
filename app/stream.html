@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Nova Heads - stream</title>
+<link rel="stylesheet" href="hud.css">
+<link rel="stylesheet" href="themes.css">
+<style>html,body{margin:0;background:transparent;overflow:hidden}body{padding:40px 24px}</style>
+</head>
+<body>
+<div id="hud"></div>
+<script src="hud.js"></script>
+<script>
+// OBS browser source copy of the HUD. Live updates come from Nova Heads over /events (this PC only).
+const q = new URLSearchParams(location.search);
+const hud = createHud(document.getElementById("hud"));
+const fix = (u) => (u && String(u).startsWith("file:")
+  ? (String(u).includes("/custom/") ? "/custom/" : "/heads/") + encodeURIComponent(decodeURIComponent(String(u).split("/").pop()))
+  : u);
+function connect() {
+  const es = new EventSource("/events");
+  es.addEventListener("config", (e) => {
+    const c = JSON.parse(e.data);
+    if (q.get("theme")) c.theme = q.get("theme");
+    if (q.get("palette")) c.palette = q.get("palette");
+    if (q.get("scale")) c.scale = +q.get("scale");
+    if (q.get("side")) c.anchor = q.get("side");
+    c.custom_frame = fix(c.custom_frame); c.custom_plate = fix(c.custom_plate);
+    hud.setConfig(c);
+  });
+  es.addEventListener("state", (e) => {
+    const s = JSON.parse(e.data);
+    for (const p of s.people || []) { p.avatar = fix(p.avatar); p.avatarTalk = fix(p.avatarTalk); }
+    hud.render(s);
+  });
+  es.addEventListener("toast", (e) => hud.toast(JSON.parse(e.data)));
+}
+connect();
+</script>
+</body>
+</html>
