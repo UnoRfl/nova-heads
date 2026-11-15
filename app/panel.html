@@ -191,9 +191,13 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
     <section class="page" id="p-fx">
       <h2>EFFECTS</h2><div class="sub">// motion and glass.</div>
       <div class="rows">
-        <div class="fr glass"><div class="t"><b>JOIN / LEAVE</b><span>auto = what the style is designed for</span></div>
+        <div class="fr glass"><div class="t"><b>JOIN / LEAVE</b><span>auto = each style's own signature animation</span></div>
           <div class="seg" data-k="fx"><button data-v="auto">AUTO</button><button data-v="glitch">GLITCH</button><button data-v="soft">SOFT</button><button data-v="none">NONE</button></div>
           <button class="btn" id="replay">REPLAY</button></div>
+        <div class="fr glass"><div class="t"><b>SOUND EFFECTS</b><span>every style has its own join / leave / mute sounds</span></div>
+          <button class="btn" id="sfxTest">TEST</button><div class="tog" data-k="sfx"></div></div>
+        <div class="fr glass"><div class="t"><b>SOUND VOLUME</b><span>how loud the HUD sounds are over your game</span></div>
+          <input type="range" data-k="sfx_volume" min="0" max="1" step="0.05"><span class="val" data-for="sfx_volume"></span></div>
         <div class="fr glass"><div class="t"><b>PARTICLES</b><span>petals / embers / sparks on styles that have them</span></div><div class="tog" data-k="particles"></div></div>
         <div class="fr glass"><div class="t"><b>REAL GLASS BLUR</b><span>see the actual game blurred through the plates</span>
           <div class="warn">⚠ hides the HUD from recordings & screenshots (NVIDIA/OBS) — Windows rule for capture.</div></div>
@@ -239,6 +243,8 @@ const THEMES = [
   ["cyber", "CYBER", "original"], ["glass", "GLASS CUBE", "frosted"], ["soft", "SOFT", "pastel"], ["flow", "FLOW", "aurora"],
   ["synth", "SYNTHWAVE", "neon drive"], ["terminal", "TERMINAL", "phosphor"], ["mono", "MONO", "swiss"], ["holo", "HOLO", "iridescent"],
   ["comic", "COMIC", "spider-verse"], ["sakura", "SAKURA", "petals"], ["ember", "EMBER", "warm glow"],
+  ["ink", "INK 墨", "calligraphy"], ["noir", "NOIR", "b&w film"], ["oni", "ONI 鬼", "samurai"], ["anime", "ANIME", "manga panel"],
+  ["pop", "POP", "cutesy"], ["pixel", "8-BIT", "pixel pop"],
 ];
 const PALS = [
   ["default", "THEME", ["#4DF3FF", "#3DFF9A", "#FF3DA5", "#FF9F1C", "#FFD23F", "#FF4D6A"]],
@@ -251,7 +257,7 @@ const PALS = [
   ["ice", "ICE", ["#BFE9FF", "#9EE7FF", "#E0C3FC", "#FFD6A5", "#BDB2FF", "#FFADAD"]],
   ["gold", "GOLD", ["#F5C451", "#F5C451", "#FFE29A", "#E08E45", "#C9A0FF", "#E5484D"]],
 ];
-const LIGHT = new Set(["soft", "sakura"]);
+const LIGHT = new Set(["soft", "sakura", "pop"]);
 let cfg = {};
 const huds = [];          // {hud, people, fixedTheme}
 
@@ -265,7 +271,7 @@ for (const [id, name, tagline] of THEMES) {
   card.className = "card glass"; card.dataset.theme = id;
   card.innerHTML = `<div class="chk">✓</div><div class="well ${id === "mono" ? "" : LIGHT.has(id) ? "light" : ""}"><div class="mini"></div></div>
     <div class="lbl"><b>${name}</b><span>${tagline}</span></div>`;
-  card.onclick = () => set("theme", id);
+  card.onclick = () => { set("theme", id); if (cfg.sfx !== false) nhSfx.play(id, "join", cfg.sfx_volume ?? .5); };
   $themes.appendChild(card);
   const h = createHud(card.querySelector(".mini"), { noScale: true });
   huds.push({ hud: h, people: cast(3), fixedTheme: id });
@@ -301,7 +307,11 @@ document.querySelectorAll(".tog").forEach((t) => t.onclick = () => set(t.dataset
 document.querySelectorAll("input[type=range]").forEach((r) => r.oninput = () => set(r.dataset.k, parseFloat(r.value)));
 document.getElementById("accent").oninput = (e) => set("accent_override", e.target.value);
 document.getElementById("accentReset").onclick = () => set("accent_override", null);
-document.getElementById("replay").onclick = () => huds.forEach((h) => h.hud.replay());
+document.getElementById("replay").onclick = () => huds.forEach((h) => h.hud.leaveAll());
+document.getElementById("sfxTest").onclick = () => {
+  const t = cfg.theme || "cyber", v = cfg.sfx_volume ?? .5;
+  nhSfx.play(t, "join", v); setTimeout(() => nhSfx.play(t, "blip", v), 700); setTimeout(() => nhSfx.play(t, "leave", v), 1300);
+};
 document.getElementById("openHeads").onclick = () => window.nova.openHeads();
 document.getElementById("min").onclick = () => window.nova.win("min");
 document.getElementById("close").onclick = () => window.nova.win("close");
@@ -315,10 +325,10 @@ function apply() {
   document.querySelectorAll(".pal").forEach((c) => c.classList.toggle("on", c.dataset.pal === (cfg.palette || "default")));
   document.querySelectorAll(".seg").forEach((s) => s.querySelectorAll("button").forEach((b) =>
     b.classList.toggle("on", String(cfg[s.dataset.k] ?? (s.dataset.k === "fx" ? "auto" : "left")) === b.dataset.v)));
-  document.querySelectorAll(".tog").forEach((t) => t.classList.toggle("on", t.dataset.k === "particles" || t.dataset.k === "show_header" || t.dataset.k === "show_names"
+  document.querySelectorAll(".tog").forEach((t) => t.classList.toggle("on", t.dataset.k === "particles" || t.dataset.k === "sfx" || t.dataset.k === "show_header" || t.dataset.k === "show_names"
     ? cfg[t.dataset.k] !== false : !!cfg[t.dataset.k]));
   document.querySelectorAll("input[type=range]").forEach((r) => {
-    const v = cfg[r.dataset.k] ?? { top: .33, scale: 1, idle_opacity: .8 }[r.dataset.k];
+    const v = cfg[r.dataset.k] ?? { top: .33, scale: 1, idle_opacity: .8, sfx_volume: .5 }[r.dataset.k];
     r.value = v; r.style.setProperty("--p", ((v - r.min) / (r.max - r.min)) * 100 + "%");
     document.querySelector(`.val[data-for=${r.dataset.k}]`).textContent = r.dataset.k === "top" ? Math.round(v * 100) + "%" : v.toFixed(2);
   });

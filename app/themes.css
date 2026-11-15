@@ -5,7 +5,7 @@
 .hud[data-theme] .plate,.hud[data-theme] .frame,.hud[data-theme] .frame img,.hud[data-theme] .scan,.hud[data-theme] .hdr{will-change:auto}
 
 /* ============================================================ 1. GLASS CUBE (glassmorphism x cyber) */
-.hud[data-theme=glass]{--c:#7FE7FF;--txt:#F2FAFF;--dim:#9FB3C8;--line:rgba(255,255,255,.32);--ink:14,18,28;--fx:soft;--av:38px;--cut:0px}
+.hud[data-theme=glass]{--c:#7FE7FF;--txt:#F2FAFF;--dim:#9FB3C8;--line:rgba(255,255,255,.32);--ink:14,18,28;--fx:soft;--particles:spark;--av:38px;--cut:0px}
 .hud[data-theme=glass] .hdr{clip-path:none;background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.05));
   border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),3px 3px 0 rgba(127,231,255,.12);backdrop-filter:blur(14px)}
 .hud[data-theme=glass] .frame{clip-path:none;padding:2px;background:linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.08));
@@ -32,7 +32,7 @@
 .hud[data-theme=glass] .br{border-color:rgba(255,255,255,.85)}
 
 /* ============================================================ 2. SOFT (pastel, calm, rounded squares) */
-.hud[data-theme=soft]{--c:#B9A7FF;--txt:#3B3550;--dim:#9A92B3;--line:rgba(255,255,255,.9);--ink:255,250,252;--fx:soft;--av:38px;--cut:0px;
+.hud[data-theme=soft]{--c:#B9A7FF;--txt:#3B3550;--dim:#9A92B3;--line:rgba(255,255,255,.9);--ink:255,250,252;--fx:pop;--av:38px;--cut:0px;
   --s-talk:#7EDCB5;--s-you:#FF9EC7;--s-self:#FFC28A;--s-server:#F5D77A;--s-local:#C3B2FF;--s-deaf:#FF9AA2}
 .hud[data-theme=soft] .hdr{clip-path:none;border-radius:8px;background:rgba(255,250,252,.85);color:#7C7598;box-shadow:0 4px 14px rgba(80,60,120,.18)}
 .hud[data-theme=soft] .hdr .ch{color:#3B3550}
@@ -120,7 +120,7 @@
 @keyframes nh-flicker{0%,96%,100%{filter:none}97%{filter:brightness(1.35)}98%{filter:brightness(.8)}}
 
 /* ============================================================ 6. MONO (Swiss minimal, black & white) */
-.hud[data-theme=mono]{--c:#FFFFFF;--txt:#FFFFFF;--dim:#8C8C8C;--ink:0,0,0;--line:rgba(255,255,255,.5);--cut:0px;--fx:soft;
+.hud[data-theme=mono]{--c:#FFFFFF;--txt:#FFFFFF;--dim:#8C8C8C;--ink:0,0,0;--line:rgba(255,255,255,.5);--cut:0px;--fx:wipe;
   --s-talk:#FFFFFF;--s-you:#FFFFFF;--s-self:#FF5A1F;--s-server:#FFD400;--s-local:#9C9C9C;--s-deaf:#FF2D2D}
 .hud[data-theme=mono] .hdr{clip-path:none;background:#000;color:#fff;font-family:'Space Grotesk';font-weight:700;letter-spacing:.2em}
 .hud[data-theme=mono] .hdr .pip{clip-path:none;box-shadow:none;background:#fff}
@@ -140,7 +140,7 @@
 .hud[data-theme=mono] .idx{font-family:'Space Grotesk';font-weight:700}
 
 /* ============================================================ 7. HOLO (iridescent foil) */
-.hud[data-theme=holo]{--c:#C7D2FE;--txt:#FFFFFF;--dim:#C2C8E0;--ink:30,30,48;--cut:0px;--fx:soft;--particles:spark;
+.hud[data-theme=holo]{--c:#C7D2FE;--txt:#FFFFFF;--dim:#C2C8E0;--ink:30,30,48;--cut:0px;--fx:flip;--particles:spark;
   --s-talk:#9EF0FF;--s-you:#FFB5F0}
 .hud[data-theme=holo] .hdr{clip-path:none;background:linear-gradient(120deg,rgba(255,255,255,.22),rgba(200,210,255,.1));border:1px solid rgba(255,255,255,.3)}
 .hud[data-theme=holo] .frame{clip-path:none;padding:2px;
@@ -190,7 +190,7 @@
 @keyframes nh-burst{50%{transform:scale(1.08) rotate(6deg)}}
 
 /* ============================================================ 9. SAKURA (soft pink, petals) */
-.hud[data-theme=sakura]{--c:#FF8FB8;--txt:#5A2A3E;--dim:#B07A90;--ink:255,240,245;--cut:0px;--fx:soft;--particles:petal;--av:38px;
+.hud[data-theme=sakura]{--c:#FF8FB8;--txt:#5A2A3E;--dim:#B07A90;--ink:255,240,245;--cut:0px;--fx:drift;--particles:petal;--av:38px;
   --s-talk:#FF6FA5;--s-you:#FF6FA5;--s-self:#F2A65A;--s-server:#E8C35A;--s-local:#B79CE8;--s-deaf:#E65A6E}
 .hud[data-theme=sakura] .hdr{clip-path:none;border-radius:8px;background:rgba(255,240,245,.88);color:#B07A90;box-shadow:0 4px 14px rgba(200,80,120,.2)}
 .hud[data-theme=sakura] .hdr .ch{color:#5A2A3E}
@@ -213,7 +213,7 @@
 .hud[data-theme=sakura] .row{opacity:.93}
 
 /* ============================================================ 10. EMBER (warm glow, rising sparks) */
-.hud[data-theme=ember]{--c:#FF7A2F;--txt:#FFEBDD;--dim:#A3796A;--ink:18,8,4;--line:rgba(255,122,47,.35);--fx:soft;--particles:ember;
+.hud[data-theme=ember]{--c:#FF7A2F;--txt:#FFEBDD;--dim:#A3796A;--ink:18,8,4;--line:rgba(255,122,47,.35);--fx:rise;--particles:ember;
   --s-talk:#FF7A2F;--s-you:#FFC53D;--s-self:#C9A07A;--s-server:#FFD23F;--s-local:#D08BFF;--s-deaf:#FF3B3B}
 .hud[data-theme=ember] .plate{background:linear-gradient(90deg,rgba(28,10,4,.92),rgba(18,8,4,.75))}
 .hud[data-theme=ember] .row.talk .plate{background:linear-gradient(90deg,rgba(60,18,4,.92),rgba(28,10,4,.78))}
@@ -221,6 +221,293 @@
 .hud[data-theme=ember] .row.talk .name{text-shadow:0 0 10px rgba(255,122,47,.8),0 0 2px #FFC53D}
 .hud[data-theme=ember] .scan::after{background:linear-gradient(0deg,transparent,rgba(255,122,47,.5),#FFC53D)}
 .hud[data-theme=ember] .row.talk .scan::after{animation-direction:reverse}
+
+/* ============================================================ 12. INK  墨  (Japanese calligraphy: washi paper, ensō brush ring, hanko seal) */
+.hud[data-theme=ink]{--c:#1B1714;--txt:#1B1714;--dim:#7D7268;--ink:240,232,216;--line:rgba(27,23,20,.5);--cut:0px;--fx:brush;--particles:ink;--av:40px;
+  --s-talk:#C8322B;--s-you:#C8322B;--s-self:#B8792E;--s-server:#9C8A3A;--s-local:#6B5B8E;--s-deaf:#8E1F1A;
+  --washi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='60'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02 .35' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .3 0 0 0 .9 -.35'/%3E%3C/filter%3E%3Crect width='160' height='60' filter='url(%23f)'/%3E%3C/svg%3E"),linear-gradient(180deg,#F6F0E3,#ECE2CE);--enso:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' seed='4'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='5'/%3E%3C/filter%3E%3Cg filter='url(%23r)' fill='none' stroke='%23000' stroke-linecap='round'%3E%3Cpath d='M62 8 A42 42 0 1 0 91 42' stroke-width='7.5'/%3E%3Cpath d='M78 17 A42 42 0 0 1 92 47' stroke-width='3' opacity='.75'/%3E%3C/g%3E%3C/svg%3E");--brush:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.05 .9' numOctaves='2' seed='2'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='3'/%3E%3C/filter%3E%3Cpath filter='url(%23r)' d='M3 7 C40 2 120 3 197 4 L194 7 C130 9 60 10 6 10 Z'/%3E%3C/svg%3E")}
+.hud[data-theme=ink] .list{counter-reset:nh-r}
+.hud[data-theme=ink] .row{counter-increment:nh-r;opacity:var(--idle-op,.9)}
+.hud[data-theme=ink] .row.talk{opacity:1}
+.hud[data-theme=ink] .hdr{clip-path:none;height:24px;padding:0 13px 0 0;gap:9px;background:var(--washi);color:#1B1714;
+  font:400 14px/1 'Yuji Syuku',serif;letter-spacing:.04em;text-transform:none;box-shadow:2px 3px 10px rgba(0,0,0,.28)}
+.hud[data-theme=ink] .hdr .pip{display:none}
+.hud[data-theme=ink] .hdr .lb{font-size:0;width:24px;height:24px;background:#C8322B;display:grid;place-items:center;
+  box-shadow:inset 0 0 0 2px #C8322B,inset 0 0 0 3px rgba(246,240,227,.55)}
+.hud[data-theme=ink] .hdr .lb::before{content:"声";font:400 15px/1 'Yuji Syuku',serif;color:#F6F0E3}
+.hud[data-theme=ink] .hdr .rule{background:#1B1714;height:2px;flex-basis:14px;border-radius:2px;opacity:.7}
+.hud[data-theme=ink] .hdr .ch{color:#1B1714;opacity:1}
+.hud[data-theme=ink] .hdr .n{color:#C8322B;font:400 13px/1 'Yuji Syuku',serif}
+.hud[data-theme=ink] .av::before{content:"";position:absolute;inset:-3px;background:#1B1714;transform:rotate(-24deg);
+  -webkit-mask:var(--enso) center/100% 100% no-repeat;transition:background .3s ease}
+.hud[data-theme=ink] .row.talk .av::before{background:var(--acc);animation:nh-enso 4s linear infinite}
+@keyframes nh-enso{from{transform:rotate(-24deg)}to{transform:rotate(336deg)}}
+.hud[data-theme=ink] .frame,.hud[data-theme=ink] .row.lit .frame,.hud[data-theme=ink] .row.talk .frame{clip-path:none;inset:4px;padding:0;border-radius:50%;background:#ECE2CE}
+.hud[data-theme=ink] .frame img{clip-path:none;border-radius:50%;filter:grayscale(1) sepia(.35) contrast(1.15) brightness(.95)}
+.hud[data-theme=ink] .row.talk .frame img{filter:sepia(.12) saturate(1.05)}
+.hud[data-theme=ink] .row.muted .frame img{filter:grayscale(1) sepia(.3) brightness(.75) opacity(.75)}
+.hud[data-theme=ink] .row.talk .av{filter:none}
+.hud[data-theme=ink] .scan,.hud[data-theme=ink] .br{display:none}
+.hud[data-theme=ink] .st{background:#F3ECDD;border-radius:50%;border-width:1.5px}
+.hud[data-theme=ink] .plate{height:27px;padding:0 20px 0 12px;margin-left:12px;background:var(--washi);
+  clip-path:polygon(0 0,calc(100% - 7px) 0,100% 17%,calc(100% - 4px) 33%,calc(100% - 1px) 50%,calc(100% - 5px) 68%,calc(100% - 2px) 85%,calc(100% - 8px) 100%,0 100%);
+  box-shadow:inset 0 -1px 0 rgba(27,23,20,.12)}
+.hud.right[data-theme=ink] .plate{margin-right:12px}
+.hud[data-theme=ink] .plate::before{width:3px;left:3px;top:4px;bottom:4px;background:#1B1714;opacity:.85;border-radius:2px;box-shadow:none}
+.hud[data-theme=ink] .row.talk .plate::before{background:var(--acc);box-shadow:none}
+.hud[data-theme=ink] .plate::after{left:10px;bottom:1px;height:7px;background:var(--acc);-webkit-mask:var(--brush) 0 0/100% 100% no-repeat;transition:width .45s cubic-bezier(.3,.7,.2,1)}
+.hud[data-theme=ink] .row.talk .plate::after{width:calc(100% - 24px)}
+.hud[data-theme=ink] .idx{font-size:0;margin-right:8px;opacity:1}
+.hud[data-theme=ink] .idx::before{content:counter(nh-r,cjk-decimal);font:400 12px/1 'Yuji Syuku',serif;color:#9E8F80}
+.hud[data-theme=ink] .row.talk .idx::before{color:var(--acc)}
+.hud[data-theme=ink] .name{font:400 15px/1 'Yuji Syuku',serif;text-transform:none;letter-spacing:.03em;color:#1B1714}
+.hud[data-theme=ink] .row.talk .name{text-shadow:none;color:#120F0D}
+.hud[data-theme=ink] .row.muted .name{color:#8A7F74}
+.hud[data-theme=ink] .you{color:#F6F0E3;background:#C8322B;padding:2px 3px;font-weight:500}
+.hud[data-theme=ink] .tag{border:1.5px solid var(--acc);transform:rotate(-4deg);font-weight:500}
+.hud[data-theme=ink] .wave i{background:var(--acc);width:2px;border-radius:2px}
+
+/* ============================================================ 13. NOIR (black & white film: sprocket frame, grain, venetian-blind light) */
+.hud[data-theme=noir]{--c:#EDEDED;--txt:#F2F2F2;--dim:#8A8A8A;--ink:8,8,8;--line:rgba(255,255,255,.55);--cut:0px;--fx:film;--particles:dust;--av:38px;--mag:#fff;
+  --s-talk:#FFFFFF;--s-you:#FFFFFF;--s-self:#B5B5B5;--s-server:#D9D9D9;--s-local:#8F8F8F;--s-deaf:#E1141B;--grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -.55'/%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hud[data-theme=noir] .hdr{clip-path:none;height:22px;padding:0 14px;gap:9px;background:#0A0A0A;color:#BDBDBD;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75),inset 0 3px 0 #0A0A0A,inset 0 4px 0 rgba(255,255,255,.3),
+    inset 0 -1px 0 rgba(255,255,255,.75),inset 0 -3px 0 #0A0A0A,inset 0 -4px 0 rgba(255,255,255,.3);
+  font:400 10.5px/1 'Special Elite',monospace;letter-spacing:.2em}
+.hud[data-theme=noir] .hdr .pip{clip-path:none;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.8)}
+.hud[data-theme=noir] .hdr .lb{font-size:0}
+.hud[data-theme=noir] .hdr .lb::before{content:"Voices";font:italic 700 14px/1 'Playfair Display',serif;letter-spacing:.02em;color:#fff}
+.hud[data-theme=noir] .hdr .rule{background:#fff;opacity:.5}
+.hud[data-theme=noir] .hdr .n{color:#fff}
+.hud[data-theme=noir] .frame,.hud[data-theme=noir] .row.lit .frame,.hud[data-theme=noir] .row.talk .frame{clip-path:none;inset:-1px -6px;padding:3px 7px;
+  background:repeating-linear-gradient(180deg,rgba(235,235,235,.9) 0 3px,transparent 3px 7px) 2px 1px/3px 100% no-repeat,
+    repeating-linear-gradient(180deg,rgba(235,235,235,.9) 0 3px,transparent 3px 7px) calc(100% - 2px) 1px/3px 100% no-repeat,#0A0A0A;
+  box-shadow:0 0 0 1px rgba(255,255,255,.25)}
+.hud[data-theme=noir] .frame img{clip-path:none;filter:grayscale(1) contrast(1.3) brightness(.78)}
+.hud[data-theme=noir] .row.talk .frame img{filter:grayscale(1) contrast(1.45) brightness(1.08)}
+.hud[data-theme=noir] .row.muted .frame img{filter:grayscale(1) contrast(1.2) brightness(.45)}
+.hud[data-theme=noir] .av::after{content:"";position:absolute;inset:2px -1px;pointer-events:none;background:var(--grain);mix-blend-mode:overlay;opacity:.55;
+  animation:nh-grain .5s steps(4) infinite}
+.hud[data-theme=noir] .row.talk .av::after{opacity:.85}
+@keyframes nh-grain{0%{background-position:0 0}25%{background-position:-23px 11px}50%{background-position:17px -29px}75%{background-position:-9px -14px}}
+.hud[data-theme=noir] .scan{clip-path:none;inset:2px -1px}
+.hud[data-theme=noir] .scan::after{height:100%;top:0;left:30%;width:1px;right:auto;background:rgba(255,255,255,.55);opacity:0}
+.hud[data-theme=noir] .row.talk .scan::after{animation:nh-scratch 1.3s steps(1) infinite}
+@keyframes nh-scratch{0%{opacity:.6;left:24%}20%{opacity:0}45%{opacity:.4;left:71%}55%{opacity:0}80%{opacity:.5;left:46%}90%{opacity:0}}
+.hud[data-theme=noir] .br{display:none}
+.hud[data-theme=noir] .row.talk .av{filter:drop-shadow(0 0 9px rgba(255,255,255,.35))}
+.hud[data-theme=noir] .plate{clip-path:none;height:27px;margin-left:17px;padding:0 15px 0 12px;background:#0A0A0A;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(255,255,255,.6)}
+.hud.right[data-theme=noir] .plate{margin-right:17px}
+.hud[data-theme=noir] .plate::before{width:2px;background:#fff;opacity:.5}
+.hud[data-theme=noir] .row.talk .plate::before{background:#fff;box-shadow:0 0 10px #fff}
+.hud[data-theme=noir] .plate::after{top:0;bottom:0;height:auto;width:100%;opacity:0;transition:opacity .4s ease;
+  background:repeating-linear-gradient(105deg,transparent 0 8px,rgba(255,255,255,.16) 8px 13px);background-size:200% 100%}
+.hud[data-theme=noir] .row.talk .plate::after{opacity:1;animation:nh-blinds 6s linear infinite}
+@keyframes nh-blinds{to{background-position:-104px 0}}
+.hud[data-theme=noir] .name{font:400 14px/1 'Special Elite',monospace;letter-spacing:.06em;color:#E6E6E6}
+.hud[data-theme=noir] .row.talk .name{color:#fff;text-shadow:0 0 8px rgba(255,255,255,.45)}
+.hud[data-theme=noir] .row.muted .name{color:#7A7A7A}
+.hud[data-theme=noir] .idx{font:400 10px/1 'Special Elite',monospace}
+.hud[data-theme=noir] .idx::before{content:"No."}
+.hud[data-theme=noir] .row.talk .idx{color:#fff}
+.hud[data-theme=noir] .you{font-family:'Special Elite'}
+.hud[data-theme=noir] .tag{font-family:'Special Elite';transform:rotate(-3deg);border-width:1.5px}
+.hud[data-theme=noir] .row[data-st=deaf] .tag{background:#E1141B;color:#fff;border-color:#E1141B}
+.hud[data-theme=noir] .wave i{background:#fff}
+
+/* ============================================================ 14. ONI  鬼  (samurai lacquer, gold, horns, katana plate) */
+.hud[data-theme=oni]{--c:#C9A24A;--txt:#F4E9D8;--dim:#8C7A62;--ink:14,8,8;--line:rgba(201,162,74,.55);--cut:0px;--fx:slash;--particles:ember;--av:40px;--mag:#E8322A;
+  --s-talk:#E8322A;--s-you:#FF6A2B;--s-self:#D98A2B;--s-server:#C9A24A;--s-local:#8F6BC9;--s-deaf:#9E1A1A}
+.hud[data-theme=oni] .hdr{clip-path:polygon(0 0,calc(100% - 9px) 0,100% 50%,calc(100% - 9px) 100%,0 100%);height:22px;padding:0 18px 0 0;gap:9px;
+  background:linear-gradient(180deg,#22100D,#0E0808);box-shadow:inset 0 1px 0 rgba(201,162,74,.8),inset 0 -1px 0 rgba(201,162,74,.8);
+  font:800 11px/1 'Shippori Mincho B1',serif;letter-spacing:.22em;color:#C9A24A}
+.hud[data-theme=oni] .hdr .pip{display:none}
+.hud[data-theme=oni] .hdr .lb{font-size:0;width:22px;height:22px;display:grid;place-items:center;background:#A3201A}
+.hud[data-theme=oni] .hdr .lb::before{content:"鬼";font:800 14px/1 'Shippori Mincho B1',serif;color:#F4E9D8}
+.hud[data-theme=oni] .hdr .rule{background:linear-gradient(90deg,#C9A24A,transparent)}
+.hud[data-theme=oni] .hdr .ch{color:#F4E9D8}
+.hud[data-theme=oni] .hdr .n{color:#E8322A}
+.hud[data-theme=oni] .frame{clip-path:polygon(29% 0,71% 0,100% 29%,100% 71%,71% 100%,29% 100%,0 71%,0 29%);padding:2px;
+  background:linear-gradient(160deg,#F1D58A,#C9A24A 45%,#6E5120)}
+.hud[data-theme=oni] .row.lit .frame{background:linear-gradient(160deg,#F1D58A,var(--acc) 50%,#3A1010)}
+.hud[data-theme=oni] .row.talk .frame{background:linear-gradient(160deg,#FFB38A,var(--acc) 45%,#5A0E0E)}
+.hud[data-theme=oni] .frame img{clip-path:polygon(29% 0,71% 0,100% 29%,100% 71%,71% 100%,29% 100%,0 71%,0 29%);filter:saturate(.8) sepia(.18) contrast(1.05) brightness(.85)}
+.hud[data-theme=oni] .row.talk .frame img{filter:saturate(1.05) contrast(1.05)}
+.hud[data-theme=oni] .scan{clip-path:polygon(29% 0,71% 0,100% 29%,100% 71%,71% 100%,29% 100%,0 71%,0 29%)}
+.hud[data-theme=oni] .scan::after{background:linear-gradient(180deg,transparent,rgba(232,50,42,.35) 85%,#FF8A5A)}
+.hud[data-theme=oni] .row.talk .av{filter:drop-shadow(0 0 7px rgba(232,50,42,.75))}
+/* horns: the two top corner brackets become oni horns (small + gold idle, grow red when talking) */
+.hud[data-theme=oni] .br.bl,.hud[data-theme=oni] .br.brr{display:none}
+.hud[data-theme=oni] .br.tl,.hud[data-theme=oni] .br.tr{border:0;width:9px;height:14px;top:-9px;opacity:.95;z-index:-1;
+  background:linear-gradient(0deg,#6E5120,#C9A24A 45%,#F7E7B8);clip-path:polygon(8% 100%,92% 100%,78% 55%,52% 18%,18% 0,30% 32%,22% 64%);
+  transform-origin:50% 100%;transition:transform .3s cubic-bezier(.3,1.6,.5,1),background .3s ease}
+.hud[data-theme=oni] .br.tl{left:5px;transform:scale(.6) rotate(-12deg)}
+.hud[data-theme=oni] .br.tr{right:5px;left:auto;transform:scaleX(-1) scale(.6) rotate(-12deg)}
+.hud[data-theme=oni] .row.talk .br.tl{transform:scale(1) rotate(-14deg);background:linear-gradient(0deg,#5A0E0E,var(--acc) 50%,#FFD0A8)}
+.hud[data-theme=oni] .row.talk .br.tr{transform:scaleX(-1) scale(1) rotate(-14deg);background:linear-gradient(0deg,#5A0E0E,var(--acc) 50%,#FFD0A8)}
+.hud[data-theme=oni] .st{background:#0E0808;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);width:17px;height:17px;border:0;box-shadow:inset 0 0 0 1.5px var(--acc)}
+.hud[data-theme=oni] .plate{height:27px;margin-left:12px;padding:0 26px 0 28px;
+  background:linear-gradient(180deg,#24110E,#0E0808 60%,#170A09);
+  clip-path:polygon(0 0,calc(100% - 15px) 0,100% 50%,calc(100% - 15px) 100%,0 100%);
+  box-shadow:inset 0 1px 0 rgba(201,162,74,.85),inset 0 -1px 0 rgba(201,162,74,.85),inset 0 3px 0 #0E0808,inset 0 4px 0 rgba(201,162,74,.25)}
+.hud.right[data-theme=oni] .plate{margin-right:12px}
+.hud[data-theme=oni] .plate::before{content:"鬼";width:19px;display:grid;place-items:center;background:#7A1712;opacity:1;box-shadow:none;
+  font:800 12px/1 'Shippori Mincho B1',serif;color:#F4E9D8}
+.hud[data-theme=oni] .row.lit .plate::before{background:color-mix(in srgb,var(--acc) 70%,#3A0A0A)}
+.hud[data-theme=oni] .row.talk .plate::before{background:var(--acc);box-shadow:0 0 12px var(--acc)}
+.hud[data-theme=oni] .plate::after{top:calc(50% - .5px);bottom:auto;height:1px;width:100%;opacity:0;
+  background:linear-gradient(90deg,transparent,#fff 45%,#FFD0A8 55%,transparent) -60% 0/45% 100% no-repeat}
+.hud[data-theme=oni] .row.talk .plate::after{opacity:.75;animation:nh-cut 1.7s cubic-bezier(.7,0,.3,1) infinite}
+@keyframes nh-cut{0%{background-position:-60% 0}55%,100%{background-position:160% 0}}
+.hud[data-theme=oni] .row.talk .plate{background:linear-gradient(180deg,#3A120E,#160909 60%,#200B0A)}
+.hud[data-theme=oni] .idx{display:none}
+.hud[data-theme=oni] .name{font:800 13.5px/1 'Shippori Mincho B1',serif;letter-spacing:.12em;color:#F4E9D8}
+.hud[data-theme=oni] .row.talk .name{color:#fff;text-shadow:0 0 10px rgba(232,50,42,.85),0 0 2px #FF8A5A}
+.hud[data-theme=oni] .row.muted .name{color:#8C7A62}
+.hud[data-theme=oni] .you{color:#C9A24A}
+.hud[data-theme=oni] .tag{font-family:'Shippori Mincho B1';font-weight:800;background:rgba(0,0,0,.4)}
+.hud[data-theme=oni] .wave i{background:linear-gradient(0deg,#C9A24A,var(--acc))}
+
+/* ============================================================ 15. ANIME (manga-panel avatar, speed lines, skewed title-card plates) */
+.hud[data-theme=anime]{--c:#7FD3FF;--txt:#FFFFFF;--dim:#A9B6DA;--ink:22,20,62;--line:#fff;--cut:0px;--fx:zoom;--particles:star;--av:40px;--mag:#FF5FA2;
+  --s-talk:#FF5FA2;--s-you:#FFC93C;--s-self:#FF9F4A;--s-server:#FFE76A;--s-local:#B79CFF;--s-deaf:#FF4D6A}
+.hud[data-theme=anime] .hdr{clip-path:none;height:20px;padding:0 12px;gap:8px;background:#FF5FA2;color:#fff;transform:skewX(-12deg);margin-left:4px;
+  box-shadow:3px 3px 0 #16143E;font:400 10px/1 'Dela Gothic One',sans-serif;letter-spacing:.06em}
+.hud[data-theme=anime] .hdr>*{transform:skewX(12deg)}
+.hud[data-theme=anime] .hdr .pip{clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);width:9px;height:9px;background:#FFE76A;box-shadow:none}
+.hud[data-theme=anime] .hdr .lb{font-size:0}
+.hud[data-theme=anime] .hdr .lb::before{content:"ボイス";font:400 11px/1 'Dela Gothic One',sans-serif;color:#16143E}
+.hud[data-theme=anime] .hdr .rule{background:#fff;flex-basis:14px;height:2px}
+.hud[data-theme=anime] .hdr .ch,.hud[data-theme=anime] .hdr .n{color:#fff;opacity:1}
+.hud[data-theme=anime] .av::before{content:"";position:absolute;inset:-11px;opacity:0;transition:opacity .2s ease;
+  background:repeating-conic-gradient(from 0deg,var(--acc) 0 3deg,transparent 3deg 11deg,#fff 11deg 12.5deg,transparent 12.5deg 20deg);
+  -webkit-mask:radial-gradient(circle,transparent 42%,#000 46%,#000 58%,transparent 72%)}
+.hud[data-theme=anime] .row.talk .av::before{opacity:1;animation:nh-speed .3s steps(2) infinite}
+@keyframes nh-speed{to{transform:rotate(9deg) scale(1.06)}}
+.hud[data-theme=anime] .frame,.hud[data-theme=anime] .row.lit .frame{clip-path:polygon(16% 0,100% 0,84% 100%,0 100%);padding:2px 3px;background:#fff}
+.hud[data-theme=anime] .row.talk .frame{background:linear-gradient(135deg,#fff 30%,var(--acc))}
+.hud[data-theme=anime] .frame img{clip-path:polygon(15% 0,100% 0,85% 100%,0 100%);filter:saturate(1.1) brightness(.9)}
+.hud[data-theme=anime] .row.talk .frame img{filter:saturate(1.25) contrast(1.05)}
+.hud[data-theme=anime] .scan{clip-path:polygon(16% 0,100% 0,84% 100%,0 100%)}
+.hud[data-theme=anime] .scan::after{top:0;height:100%;left:-60%;right:auto;width:40%;transform:skewX(-20deg);opacity:.75;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent)}
+.hud[data-theme=anime] .row.talk .scan::after{animation:nh-shine 1.6s ease-in-out infinite}
+@keyframes nh-shine{0%{left:-60%}60%,100%{left:130%}}
+.hud[data-theme=anime] .br{display:none}
+.hud[data-theme=anime] .row.talk .av{filter:none;transform:scale(1.06)}
+.hud[data-theme=anime] .st{border-radius:50%;background:#16143E;border:1.5px solid #fff}
+.hud[data-theme=anime] .st svg{stroke:#fff}
+.hud[data-theme=anime] .plate{clip-path:none;height:25px;margin-left:13px;padding:0 15px 0 12px;transform:skewX(-12deg);
+  background:linear-gradient(100deg,rgba(22,20,62,.94),rgba(48,36,110,.88));box-shadow:0 0 0 1.5px #fff,4px 4px 0 color-mix(in srgb,var(--acc) 85%,transparent)}
+.hud.right[data-theme=anime] .plate{margin-right:13px}
+.hud[data-theme=anime] .plate>*{transform:skewX(12deg)}
+.hud[data-theme=anime] .row.talk .plate{background:linear-gradient(100deg,color-mix(in srgb,var(--acc) 92%,#000),color-mix(in srgb,var(--acc) 55%,#16143E));
+  box-shadow:0 0 0 2px #fff,5px 5px 0 #16143E;transform:skewX(-12deg) translateX(3px)}
+.hud[data-theme=anime] .plate::before{display:none}
+.hud[data-theme=anime] .plate::after{height:2px;bottom:3px;left:8px;background:#fff;opacity:.9}
+.hud[data-theme=anime] .row.talk .plate::after{width:calc(100% - 16px)}
+.hud[data-theme=anime] .idx{display:none}
+.hud[data-theme=anime] .name{font:400 13px/1.15 'Dela Gothic One',sans-serif;text-transform:none;letter-spacing:.03em;color:#fff;text-shadow:1.5px 1.5px 0 #16143E}
+.hud[data-theme=anime] .row.talk .name{text-shadow:2px 2px 0 #16143E}
+.hud[data-theme=anime] .row.muted .name{color:#A9B6DA}
+.hud[data-theme=anime] .you{background:#FFC93C;color:#16143E;padding:2px 4px;font-weight:500}
+.hud[data-theme=anime] .tag{background:#FFE76A;color:#16143E;border:0;font-weight:500}
+.hud[data-theme=anime] .row[data-st=deaf] .tag{background:#FF4D6A;color:#fff}
+.hud[data-theme=anime] .wave i{background:#fff;width:2.5px}
+
+/* ============================================================ 16. POP (cutesy stickers: squishy blob avatars, speech-bubble plates, hearts) */
+.hud[data-theme=pop]{--c:#FF7EB6;--txt:#4A2B5E;--dim:#B49AC8;--ink:255,255,255;--line:#fff;--cut:0px;--fx:pop;--particles:heart;--av:40px;
+  --s-talk:#FF4FA0;--s-you:#8C6BFF;--s-self:#FF9A3D;--s-server:#F5B700;--s-local:#3DB8FF;--s-deaf:#FF4D5E}
+.hud[data-theme=pop] .row{opacity:var(--idle-op,.92)}
+.hud[data-theme=pop] .row.talk{opacity:1}
+.hud[data-theme=pop] .hdr{clip-path:none;height:22px;padding:0 13px 0 10px;border-radius:12px;background:#fff;color:#B49AC8;
+  box-shadow:0 0 0 2px #FFB8D8,0 4px 0 rgba(74,43,94,.15);font:700 11px/1 'Fredoka',sans-serif;letter-spacing:.04em;text-transform:none}
+.hud[data-theme=pop] .hdr .pip{display:none}
+.hud[data-theme=pop] .hdr .lb{font-size:0}
+.hud[data-theme=pop] .hdr .lb::before{content:"\2661  voice";font:700 12px/1 'Fredoka',sans-serif;color:#FF4FA0;white-space:pre}
+.hud[data-theme=pop] .hdr .rule{display:none}
+.hud[data-theme=pop] .hdr .ch{color:#4A2B5E;opacity:1}
+.hud[data-theme=pop] .hdr .n{color:#fff;background:#FF7EB6;border-radius:8px;padding:2px 5px;opacity:1}
+.hud[data-theme=pop] .frame,.hud[data-theme=pop] .row.lit .frame{clip-path:none;padding:3px;background:#fff;border-radius:58% 42% 52% 48% / 48% 56% 44% 52%;
+  box-shadow:0 3px 0 rgba(74,43,94,.22),0 6px 14px rgba(255,79,160,.22)}
+.hud[data-theme=pop] .row.lit:not(.talk) .frame{box-shadow:0 0 0 2.5px var(--acc),0 3px 0 rgba(74,43,94,.22)}
+.hud[data-theme=pop] .row.talk .frame{background:var(--acc);animation:nh-blob 1.8s ease-in-out infinite}
+.hud[data-theme=pop] .frame img{clip-path:none;border-radius:inherit;filter:saturate(1.05)}
+.hud[data-theme=pop] .row.talk .frame img{filter:saturate(1.15) brightness(1.03)}
+.hud[data-theme=pop] .row.muted .frame img{filter:grayscale(.85) brightness(.95) opacity(.8)}
+@keyframes nh-blob{0%,100%{border-radius:58% 42% 52% 48% / 48% 56% 44% 52%}33%{border-radius:44% 56% 40% 60% / 60% 42% 58% 40%}
+  66%{border-radius:52% 48% 62% 38% / 42% 60% 40% 58%}}
+.hud[data-theme=pop] .av::before{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px dashed var(--acc);opacity:0;transition:opacity .2s ease}
+.hud[data-theme=pop] .row.talk .av::before{opacity:.9;animation:nh-spin-r 6s linear infinite}
+@keyframes nh-spin-r{to{transform:rotate(360deg)}}
+.hud[data-theme=pop] .row.talk .av{filter:none;animation:nh-squish .5s ease-in-out infinite alternate}
+@keyframes nh-squish{from{transform:scale(1.04,.96)}to{transform:scale(.97,1.04) translateY(-1px)}}
+.hud[data-theme=pop] .scan,.hud[data-theme=pop] .br{display:none}
+.hud[data-theme=pop] .st{border-radius:50%;background:#fff;border:2px solid var(--acc);width:17px;height:17px}
+.hud[data-theme=pop] .plate{clip-path:none;height:28px;margin-left:13px;padding:0 15px 0 13px;background:#fff;border-radius:14px;
+  box-shadow:0 0 0 2.5px #FFD0E6,0 4px 0 rgba(74,43,94,.16);transition:box-shadow .2s ease,transform .25s ease}
+.hud.right[data-theme=pop] .plate{margin-right:13px}
+.hud[data-theme=pop] .row.lit .plate{box-shadow:0 0 0 2.5px var(--acc),0 4px 0 rgba(74,43,94,.16)}
+.hud[data-theme=pop] .row.talk .plate{box-shadow:0 0 0 3px var(--acc),0 5px 0 color-mix(in srgb,var(--acc) 45%,#4A2B5E);animation:nh-boing .9s ease-in-out infinite}
+@keyframes nh-boing{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-2px) rotate(-1deg)}60%{transform:translateY(0) rotate(.6deg)}}
+/* speech-bubble tail pointing at the avatar */
+.hud[data-theme=pop] .plate::before{left:-5px;top:calc(50% - 5px);bottom:auto;width:10px;height:10px;background:#fff;opacity:1;
+  transform:rotate(45deg);box-shadow:-2.5px 2.5px 0 #FFD0E6;border-radius:0 0 0 3px}
+.hud[data-theme=pop] .row.lit .plate::before{background:#fff;opacity:1;box-shadow:-2.5px 2.5px 0 var(--acc)}
+.hud[data-theme=pop] .row.talk .plate::before{background:#fff;box-shadow:-3px 3px 0 var(--acc)}
+.hud.right[data-theme=pop] .plate::before{left:auto;right:-5px;box-shadow:2.5px -2.5px 0 #FFD0E6;border-radius:0 3px 0 0}
+.hud.right[data-theme=pop] .row.lit .plate::before,.hud.right[data-theme=pop] .row.talk .plate::before{box-shadow:3px -3px 0 var(--acc)}
+.hud[data-theme=pop] .plate::after{display:none}
+.hud[data-theme=pop] .idx{display:none}
+.hud[data-theme=pop] .name{font:700 14px/1 'Fredoka',sans-serif;text-transform:none;letter-spacing:.01em;color:#4A2B5E}
+.hud[data-theme=pop] .row.talk .name{color:var(--acc);text-shadow:none}
+.hud[data-theme=pop] .row.muted .name{color:#B49AC8}
+.hud[data-theme=pop] .you{font:700 9px/1 'Fredoka';background:#8C6BFF;color:#fff;border-radius:7px;padding:3px 5px}
+.hud[data-theme=pop] .tag{font:700 9px/1 'Fredoka';letter-spacing:.06em;border:0;border-radius:7px;background:var(--acc);color:#fff;padding:3px 6px}
+.hud[data-theme=pop] .wave{height:13px}
+.hud[data-theme=pop] .wave i{background:var(--acc);width:3px;border-radius:3px}
+.hud[data-theme=pop] .row.talk .wave{width:23px}
+
+/* ============================================================ 17. 8-BIT (pixelated avatars, stepped corners, RPG dialog plates, pixel bursts) */
+.hud[data-theme=pixel]{--c:#5CF2FF;--txt:#FFFFFF;--dim:#8F9BC9;--ink:24,20,52;--line:#fff;--cut:0px;--fx:pixel;--particles:bit;--av:40px;--mag:#FF4F9E;
+  --s-talk:#7CFF4F;--s-you:#FFD84F;--s-self:#FF9F2F;--s-server:#FFE94F;--s-local:#B07CFF;--s-deaf:#FF4F5E}
+.hud[data-theme=pixel] .hdr{clip-path:none;height:20px;padding:0 10px;gap:8px;margin:3px 0 11px 3px;background:#181434;color:#8F9BC9;
+  box-shadow:0 -3px 0 #fff,0 3px 0 #fff,-3px 0 0 #fff,3px 0 0 #fff;font:400 7px/1 'Press Start 2P',monospace;letter-spacing:0}
+.hud[data-theme=pixel] .hdr .pip{clip-path:none;width:6px;height:6px;background:#7CFF4F;box-shadow:none;animation:nh-blink 1s steps(1) infinite}
+.hud[data-theme=pixel] .hdr .lb{color:#fff}
+.hud[data-theme=pixel] .hdr .rule{background:repeating-linear-gradient(90deg,#fff 0 3px,transparent 3px 6px);height:3px;opacity:.6}
+.hud[data-theme=pixel] .hdr .ch{color:#5CF2FF;opacity:1}
+.hud[data-theme=pixel] .hdr .n{color:#FFD84F;opacity:1}
+.hud[data-theme=pixel] .hdr .n::before{content:"x"}
+.hud[data-theme=pixel] .frame,.hud[data-theme=pixel] .row.lit .frame{clip-path:polygon(0 6px,3px 6px,3px 3px,6px 3px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 3px,calc(100% - 3px) 3px,calc(100% - 3px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 3px) calc(100% - 6px),calc(100% - 3px) calc(100% - 3px),calc(100% - 6px) calc(100% - 3px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 3px),3px calc(100% - 3px),3px calc(100% - 6px),0 calc(100% - 6px));padding:3px;background:#fff}
+.hud[data-theme=pixel] .row.lit .frame{background:var(--acc)}
+.hud[data-theme=pixel] .row.talk .frame{background:var(--acc)}
+.hud[data-theme=pixel] .frame img{clip-path:polygon(0 6px,3px 6px,3px 3px,6px 3px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 3px,calc(100% - 3px) 3px,calc(100% - 3px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 3px) calc(100% - 6px),calc(100% - 3px) calc(100% - 3px),calc(100% - 6px) calc(100% - 3px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 3px),3px calc(100% - 3px),3px calc(100% - 6px),0 calc(100% - 6px));filter:url(#nh-px) saturate(1.2) brightness(.9)}
+.hud[data-theme=pixel] .row.talk .frame img{filter:url(#nh-px) saturate(1.35)}
+.hud[data-theme=pixel] .row.muted .frame img{filter:url(#nh-px) grayscale(1) brightness(.6)}
+.hud[data-theme=pixel] .scan,.hud[data-theme=pixel] .br{display:none}
+.hud[data-theme=pixel] .av::after{content:"";position:absolute;inset:3px;pointer-events:none;clip-path:polygon(0 6px,3px 6px,3px 3px,6px 3px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 3px,calc(100% - 3px) 3px,calc(100% - 3px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 3px) calc(100% - 6px),calc(100% - 3px) calc(100% - 3px),calc(100% - 6px) calc(100% - 3px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 3px),3px calc(100% - 3px),3px calc(100% - 6px),0 calc(100% - 6px));
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px)}
+.hud[data-theme=pixel] .row.talk .av{filter:none;animation:nh-8bob .36s steps(1) infinite alternate}
+@keyframes nh-8bob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+.hud[data-theme=pixel] .st{background:#181434;border:2px solid var(--acc);width:15px;height:15px}
+.hud[data-theme=pixel] .plate{clip-path:none;height:22px;margin-left:15px;padding:0 12px 0 10px;background:#181434;
+  box-shadow:0 -3px 0 #fff,0 3px 0 #fff,-3px 0 0 #fff,3px 0 0 #fff,0 7px 0 rgba(0,0,0,.35)}
+.hud.right[data-theme=pixel] .plate{margin-right:15px}
+.hud[data-theme=pixel] .row.lit .plate{box-shadow:0 -3px 0 var(--acc),0 3px 0 var(--acc),-3px 0 0 var(--acc),3px 0 0 var(--acc),0 7px 0 rgba(0,0,0,.35)}
+.hud[data-theme=pixel] .row.talk .plate{background:#221C4A;box-shadow:0 -3px 0 var(--acc),0 3px 0 var(--acc),-3px 0 0 var(--acc),3px 0 0 var(--acc),0 7px 0 rgba(0,0,0,.35)}
+.hud[data-theme=pixel] .plate::before,.hud[data-theme=pixel] .plate::after{display:none}
+.hud[data-theme=pixel] .idx{font:400 7px/1 'Press Start 2P',monospace;color:#8F9BC9;letter-spacing:0}
+.hud[data-theme=pixel] .idx::before{content:"P"}
+.hud[data-theme=pixel] .name{font:400 9px/1.2 'Press Start 2P',monospace;letter-spacing:0;text-transform:none;color:#fff;text-shadow:2px 2px 0 #000}
+.hud[data-theme=pixel] .row.talk .name{color:var(--acc);text-shadow:2px 2px 0 #000}
+.hud[data-theme=pixel] .row.talk .name::before{content:"\25B6 ";animation:nh-blink .5s steps(1) infinite}
+.hud[data-theme=pixel] .row.muted .name{color:#6F7AA8}
+.hud[data-theme=pixel] .you,.hud[data-theme=pixel] .tag{font:400 6px/1 'Press Start 2P',monospace;letter-spacing:0}
+.hud[data-theme=pixel] .tag{border:2px solid var(--acc);padding:3px}
+.hud[data-theme=pixel] .wave i{width:3px;border-radius:0}
+.hud[data-theme=pixel] .row.talk .wave i{animation-timing-function:steps(3)}
 
 /* ============================================================ PALETTES (override any theme's colours) */
 .hud[data-palette=aurora]{--c:#5EEAD4;--s-talk:#34D399;--s-you:#A78BFA;--s-self:#FBBF24;--s-server:#FDE68A;--s-local:#818CF8;--s-deaf:#FB7185}
@@ -231,3 +518,12 @@
 .hud[data-palette=blood]{--c:#FF3B4E;--s-talk:#FF3B4E;--s-you:#FF8A9A;--s-self:#FF9F1C;--s-server:#FFD23F;--s-local:#B983FF;--s-deaf:#8B0000}
 .hud[data-palette=ice]{--c:#BFE9FF;--s-talk:#9EE7FF;--s-you:#E0C3FC;--s-self:#FFD6A5;--s-server:#FDFFB6;--s-local:#BDB2FF;--s-deaf:#FFADAD}
 .hud[data-palette=gold]{--c:#F5C451;--s-talk:#F5C451;--s-you:#FFE29A;--s-self:#E08E45;--s-server:#FFF3B0;--s-local:#C9A0FF;--s-deaf:#E5484D}
+.hud .you:empty{display:none}
+
+/* breathing room: styles with rings / horns / speed lines / bubbles need more space between rows */
+.hud[data-theme=ink],.hud[data-theme=oni],.hud[data-theme=noir]{--gap:18px}
+.hud[data-theme=anime],.hud[data-theme=pop],.hud[data-theme=pixel]{--gap:21px}
+.hud[data-theme=oni] .hdr,.hud[data-theme=ink] .hdr,.hud[data-theme=pop] .hdr{margin-bottom:15px}
+.hud[data-theme=anime] .hdr{margin-bottom:17px}
+.hud[data-theme=pixel] .hdr{margin-bottom:16px}
+.hud[data-theme=noir] .av{margin-left:6px}.hud.right[data-theme=noir] .av{margin-left:0;margin-right:6px}

@@ -22,9 +22,10 @@ const SHOT = arg("--shot"), SHOT_AT = parseFloat(arg("--shot-at", "3")), SECONDS
 
 const CONFIG_FILE = path.join(ROOT, "config.json");
 const DEFAULTS = { theme: "cyber", palette: "default", anchor: "left", top: 0.33, margin: 14, scale: 1, idle_opacity: 0.8,
-                   hide_self: false, only_speaking: false, show_header: true, show_names: true, fx: "auto", particles: true,
+                   hide_self: false, only_speaking: false, show_header: true, show_names: true, fx: "auto", particles: true, sfx: true, sfx_volume: 0.5,
                    real_glass: false, autostart: false, accent_override: null, people: {} };
 const FIRST_RUN = !fs.existsSync(CONFIG_FILE);
+app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");   // HUD sounds play without a click
 let cfg = { ...DEFAULTS };
 try { cfg = { ...cfg, ...JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8")) }; } catch {}
 function saveCfg() {

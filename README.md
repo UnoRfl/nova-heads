@@ -3,13 +3,15 @@
 # <img src="docs/icon.png" width="34" align="top"> Nova Heads
 
 **A custom Discord voice overlay for Windows.** It shows who's in your voice channel as a HUD on top of your games.
-Whoever is talking lights up, and people glitch in and out when they join or leave. There are **11 styles** and **9 colour palettes**,
+Whoever is talking lights up, and every style has its own join/leave animation and sound effects. There are **17 styles** and **9 colour palettes**,
 and a **frosted-glass control panel** where you change them live.
 
 No Discord mods, no bot, no account risk. It reads your voice channel from the Discord app on your PC through Discord's
 official local RPC.
 
-![All 11 styles](docs/themes.png)
+![The original 11 styles](docs/themes.png)
+
+![New in v2.2: Ink, Noir, Oni, Anime, Pop, 8-Bit](docs/styles-v2.2.png)
 
 ## Download & run (2 minutes)
 
@@ -34,10 +36,12 @@ official local RPC.
 
 ![Control panel](docs/panel.png)
 
-- **Style**: Cyber, Glass Cube, Soft, Flow, Synthwave, Terminal, Mono, Holo, Comic, Sakura, Ember. Every card is a live preview.
+- **Style**: Cyber, Glass Cube, Soft, Flow, Synthwave, Terminal, Mono, Holo, Comic, Sakura, Ember, plus the art styles
+  Ink 墨 (calligraphy), Noir (b&w film), Oni 鬼 (samurai), Anime (manga panel), Pop (cutesy stickers) and 8-Bit. Every card is a live preview.
 - **Color**: palettes that recolour any style (Aurora, Sunset, Ocean, Candy, Toxic, Blood, Ice, Gold) plus an accent override.
 - **Layout**: left/right side, height, size, idle opacity, header/names, show only who's talking, hide yourself.
-- **Effects**: join/leave animation (Spider-Verse-style glitch, soft, or none), particles, and **real glass blur**.
+- **Effects**: join/leave animation (each style's own signature: glitch, brush stroke, katana slash, film flicker, sticker pop,
+  8-bit pop + pixel burst... or soft / none), synthesized **sound effects** per style with a volume slider, particles, and **real glass blur**.
 - **Setup**: start with Windows, custom heads folder.
 
 ![Palettes](docs/panel-color.png)

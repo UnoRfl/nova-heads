@@ -30,10 +30,10 @@
 .hud.empty{opacity:0}
 .hud.right{transform-origin:100% 0;direction:rtl}
 .hud.right .row,.hud.right .hdr{direction:ltr;flex-direction:row-reverse}
-.hud.right .plate{margin-left:0;margin-right:11px}
+.hud.right .plate{margin-left:0;margin-right:13px}
 
 /* ---------- header ---------- */
-.hud .hdr{display:inline-flex;align-items:center;gap:7px;height:18px;margin:0 0 8px 0;padding:0 12px 0 7px;
+.hud .hdr{display:inline-flex;align-items:center;gap:7px;height:18px;margin:0 0 12px 0;padding:0 12px 0 7px;
   background:rgba(var(--ink),.72);clip-path:polygon(0 0,100% 0,calc(100% - 6px) 100%,0 100%);
   font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.16em;color:#9AA6BA;text-transform:uppercase}
 .hud .hdr .pip{width:5px;height:5px;background:var(--c);box-shadow:0 0 6px var(--c);
@@ -45,7 +45,7 @@
 
 /* ---------- rows ---------- */
 .hud .list{list-style:none;display:flex;flex-direction:column}
-.hud .row{display:flex;align-items:center;height:calc(var(--av) + 10px);
+.hud .row{display:flex;align-items:center;height:calc(var(--av) + var(--gap,15px));
   opacity:var(--idle-op,.8);transition:opacity .22s ease, height .3s ease, margin .3s ease, --acc .35s ease;
   position:relative;--acc:var(--c)}
 .hud .row[data-st=talk]{--acc:var(--talk,var(--s-talk))}
@@ -95,7 +95,7 @@
 .hud .row.muted .st{display:grid}
 
 /* ---------- name plate ---------- */
-.hud .plate{position:relative;display:flex;align-items:center;height:22px;margin-left:11px;padding:0 13px 0 9px;
+.hud .plate{position:relative;display:flex;align-items:center;height:22px;margin-left:13px;padding:0 14px 0 10px;
   background:linear-gradient(90deg,rgba(var(--ink),.88),rgba(var(--ink),.7));
   clip-path:polygon(0 0,100% 0,calc(100% - 7px) 100%,0 100%);transition:padding .25s ease, transform .25s ease, background .25s ease}
 .hud .plate::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--dim);opacity:.6;
@@ -111,14 +111,14 @@
 .hud .row.talk .name{text-shadow:-1px 0 color-mix(in srgb,var(--mag) 60%,transparent),1px 0 color-mix(in srgb,var(--c) 60%,transparent),
   0 0 10px color-mix(in srgb,var(--acc) 45%,transparent)}
 .hud .row.muted .name{color:var(--dim)}
-.hud .you{font:400 8.5px/1 'JetBrains Mono',monospace;color:var(--dim);margin-left:7px;letter-spacing:.12em;position:relative}
-.hud .tag{font:500 8.5px/1 'JetBrains Mono',monospace;color:var(--acc);margin-left:8px;letter-spacing:.14em;position:relative;
+.hud .you{font:400 8.5px/1 'JetBrains Mono',monospace;color:var(--dim);margin-left:9px;letter-spacing:.12em;position:relative}
+.hud .tag{font:500 8.5px/1 'JetBrains Mono',monospace;color:var(--acc);margin-left:10px;letter-spacing:.14em;position:relative;
   padding:2px 4px 2px 5px;border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);display:none}
 .hud .tag:not(:empty){display:inline-block}
 
 .hud .wave{display:flex;align-items:center;gap:2px;height:12px;width:0;margin-left:0;overflow:hidden;position:relative;
   transition:width .25s ease,margin .25s ease}
-.hud .row.talk .wave{width:19px;margin-left:9px}
+.hud .row.talk .wave{width:19px;margin-left:11px}
 .hud .wave i{display:block;width:1.5px;height:100%;background:var(--acc);transform:scaleY(.2);border-radius:1px}
 .hud .row.talk .wave i{animation:nh-eq .9s ease-in-out infinite}
 .hud .wave i:nth-child(1){animation-duration:.82s!important}
@@ -162,3 +162,98 @@
 /* sakura: painted petal sprites (app/petals/p1-8.png) instead of the CSS leaf shape */
 .hud .pt.petal{width:13px;height:13px;border-radius:0;background:center/contain no-repeat;filter:drop-shadow(0 1px 1px rgba(160,40,90,.25))}
 @keyframes nh-soft-in-r{0%{opacity:0;transform:translateX(14px) scale(.96);filter:blur(6px)}100%{opacity:.8;transform:none;filter:none}}
+
+/* ---------- v2.2 art styles: fonts, signature join/leave animations, extra particles ---------- */
+@font-face{font-family:'Yuji Syuku';font-weight:400;src:url(fonts/YujiSyuku-400.woff2) format('woff2');}
+@font-face{font-family:'Shippori Mincho B1';font-weight:800;src:url(fonts/ShipporiMinchoB1-800.woff2) format('woff2');}
+@font-face{font-family:'Dela Gothic One';font-weight:400;src:url(fonts/DelaGothicOne-400.woff2) format('woff2');}
+@font-face{font-family:'Special Elite';font-weight:400;src:url(fonts/SpecialElite-400.woff2) format('woff2');}
+@font-face{font-family:'Playfair Display';font-style:italic;font-weight:700;src:url(fonts/PlayfairDisplay-700i.woff2) format('woff2');}
+@font-face{font-family:'Fredoka';font-weight:600;src:url(fonts/Fredoka-600.woff2) format('woff2');}
+@font-face{font-family:'Fredoka';font-weight:700;src:url(fonts/Fredoka-700.woff2) format('woff2');}
+@font-face{font-family:'Press Start 2P';font-weight:400;src:url(fonts/PressStart2P-400.woff2) format('woff2');}
+
+/* brush (ink): painted on left-to-right with a wet edge */
+.hud .row.brush-in{animation:nh-brush-in .6s cubic-bezier(.3,.7,.2,1) both}
+.hud .row.brush-out{animation:nh-brush-out .38s ease-in both}
+.hud .row.brush-in,.hud .row.brush-out{-webkit-mask-image:linear-gradient(90deg,#000 40%,transparent 60%);-webkit-mask-size:250% 100%;-webkit-mask-repeat:no-repeat}
+.hud.right .row.brush-in,.hud.right .row.brush-out{-webkit-mask-image:linear-gradient(270deg,#000 40%,transparent 60%)}
+@keyframes nh-brush-in{0%{opacity:0;-webkit-mask-position:100% 0;filter:blur(2px)}20%{opacity:1}100%{opacity:var(--idle-op,.8);-webkit-mask-position:0 0;filter:none}}
+@keyframes nh-brush-out{0%{-webkit-mask-position:0 0}100%{-webkit-mask-position:100% 0;opacity:0}}
+
+/* slash (oni): a katana cut opens the row diagonally with a white flash */
+.hud .row.slash-in{animation:nh-slash-in .5s cubic-bezier(.2,.9,.2,1) both}
+.hud .row.slash-out{animation:nh-slash-out .36s cubic-bezier(.6,0,.8,.4) both}
+@keyframes nh-slash-in{0%{opacity:1;clip-path:polygon(0 0,0 0,0 0,0 0);filter:brightness(4)}
+  45%{clip-path:polygon(0 0,140% 0,100% 100%,-40% 100%);filter:brightness(2.2)}100%{opacity:var(--idle-op,.8);clip-path:polygon(0 0,140% 0,100% 100%,-40% 100%);filter:none}}
+@keyframes nh-slash-out{0%{transform:none;opacity:1}30%{filter:brightness(3)}100%{transform:translate(8px,6px) rotate(2deg);opacity:0;clip-path:polygon(0 0,100% 0,100% 30%,0 70%)}}
+
+/* pop (pop / soft): bouncy sticker slap */
+.hud .row.pop-in{animation:nh-pop-in .62s cubic-bezier(.3,1.6,.5,1) both}
+.hud .row.pop-out{animation:nh-pop-out .32s cubic-bezier(.6,-0.4,.8,.6) both}
+.hud .row.pop-in,.hud .row.pop-out,.hud .row.pixel-in,.hud .row.pixel-out{transform-origin:calc(var(--av) / 2) 50%}
+@keyframes nh-pop-in{0%{opacity:0;transform:scale(.3) rotate(-8deg)}60%{opacity:1}100%{opacity:var(--idle-op,.8);transform:none}}
+@keyframes nh-pop-out{0%{transform:none}35%{transform:scale(1.08)}100%{transform:scale(.2) rotate(10deg);opacity:0}}
+
+/* pixel (8-bit): stepped pop in, stepped shrink + pixel burst out */
+.hud .row.pixel-in{animation:nh-px-in .48s steps(1) both}
+.hud .row.pixel-out{animation:nh-px-out .36s steps(1) both}
+@keyframes nh-px-in{0%{opacity:0;transform:scale(0)}15%{opacity:1;transform:scale(.35)}35%{transform:scale(.8)}55%{transform:scale(1.25)}75%{transform:scale(.92)}90%,100%{opacity:var(--idle-op,.8);transform:none}}
+@keyframes nh-px-out{0%{transform:none}20%{transform:scale(1.25)}40%{transform:scale(.85)}60%{transform:scale(.5)}80%{transform:scale(.2);opacity:.7}100%{transform:scale(0);opacity:0}}
+
+/* film (noir): projector flicker in / burn out */
+.hud .row.film-in{animation:nh-film-in .6s steps(1) both}
+.hud .row.film-out{animation:nh-film-out .38s steps(1) both}
+@keyframes nh-film-in{0%{opacity:0}12%{opacity:.7;filter:brightness(2.5) contrast(2)}22%{opacity:0}34%{opacity:.9;filter:brightness(1.6);transform:translateY(-2px)}
+  46%{opacity:.3}60%{opacity:1;filter:brightness(1.3);transform:none}80%,100%{opacity:var(--idle-op,.8);filter:none}}
+@keyframes nh-film-out{0%{opacity:1;filter:brightness(2)}25%{opacity:.2}45%{opacity:.8;filter:brightness(3) contrast(3)}70%{opacity:.1}100%{opacity:0}}
+
+/* zoom (anime): dashes in from the side with a skewed overshoot */
+.hud .row.zoom-in{animation:nh-zoom-in .55s cubic-bezier(.2,.9,.3,1.2) both}
+.hud .row.zoom-out{animation:nh-zoom-out .34s cubic-bezier(.7,0,.9,.5) both}
+@keyframes nh-zoom-in{0%{opacity:0;transform:translateX(-70px) skewX(-25deg);filter:blur(5px)}55%{opacity:1;transform:translateX(7px) skewX(8deg);filter:none}100%{opacity:var(--idle-op,.8);transform:none}}
+@keyframes nh-zoom-out{0%{transform:none}25%{transform:translateX(-6px) skewX(6deg)}100%{opacity:0;transform:translateX(80px) skewX(-25deg);filter:blur(5px)}}
+.hud.right .row.zoom-in{animation-name:nh-zoom-in-r}
+@keyframes nh-zoom-in-r{0%{opacity:0;transform:translateX(70px) skewX(25deg);filter:blur(5px)}55%{opacity:1;transform:translateX(-7px) skewX(-8deg);filter:none}100%{opacity:var(--idle-op,.8);transform:none}}
+
+/* wipe (mono): hard Swiss wipe */
+.hud .row.wipe-in{animation:nh-wipe-in .45s cubic-bezier(.7,0,.2,1) both}
+.hud .row.wipe-out{animation:nh-wipe-out .34s cubic-bezier(.7,0,.2,1) both}
+@keyframes nh-wipe-in{0%{opacity:1;clip-path:inset(0 100% 0 0)}100%{opacity:var(--idle-op,.8);clip-path:inset(0 0 0 0)}}
+@keyframes nh-wipe-out{0%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 0 0 100%)}}
+
+/* drift (sakura): floats down like a petal */
+.hud .row.drift-in{animation:nh-drift-in .62s cubic-bezier(.2,.8,.3,1) both}
+.hud .row.drift-out{animation:nh-drift-out .38s ease-in both}
+@keyframes nh-drift-in{0%{opacity:0;transform:translate(-12px,-16px) rotate(-7deg);filter:blur(3px)}100%{opacity:var(--idle-op,.8);transform:none;filter:none}}
+@keyframes nh-drift-out{100%{opacity:0;transform:translate(18px,14px) rotate(7deg);filter:blur(3px)}}
+
+/* rise (ember): flares up out of the heat */
+.hud .row.rise-in{animation:nh-rise-in .6s cubic-bezier(.2,.8,.3,1) both}
+.hud .row.rise-out{animation:nh-rise-out .38s ease-in both}
+@keyframes nh-rise-in{0%{opacity:0;transform:translateY(14px);filter:brightness(2.6) blur(3px)}60%{opacity:1;filter:brightness(1.6)}100%{opacity:var(--idle-op,.8);transform:none;filter:none}}
+@keyframes nh-rise-out{40%{filter:brightness(2.2)}100%{opacity:0;transform:translateY(-16px);filter:brightness(2.8) blur(4px)}}
+
+/* flip (holo): card flips over like a foil trading card */
+.hud .row.flip-in{animation:nh-flip-in .6s cubic-bezier(.2,.9,.3,1.3) both;transform-origin:50% 0}
+.hud .row.flip-out{animation:nh-flip-out .34s ease-in both;transform-origin:50% 100%}
+@keyframes nh-flip-in{0%{opacity:0;transform:perspective(400px) rotateX(-95deg)}50%{opacity:1}100%{opacity:var(--idle-op,.8);transform:none}}
+@keyframes nh-flip-out{100%{opacity:0;transform:perspective(400px) rotateX(90deg)}}
+
+/* extra particles: hearts, stars, ink spatter, film dust, 8-bit pixels */
+.hud .pt.heart,.hud .pt.star{font:700 calc(11px * var(--sz,1))/1 'Segoe UI Symbol',sans-serif;color:var(--acc);opacity:0;
+  text-shadow:1px 1px 0 rgba(255,255,255,.9),-1px -1px 0 rgba(255,255,255,.9),1px -1px 0 rgba(255,255,255,.9),-1px 1px 0 rgba(255,255,255,.9);
+  animation:nh-float 1.6s cubic-bezier(.2,.7,.3,1) forwards}
+.hud .pt.star{color:#fff;text-shadow:0 0 6px var(--acc),0 0 2px var(--acc);animation:nh-twinkle 1.1s ease-out forwards}
+@keyframes nh-float{0%{opacity:0;transform:translate(0,4px) scale(.4)}20%{opacity:1;transform:translate(calc(var(--dx) * .2),-6px) scale(1)}
+  100%{opacity:0;transform:translate(calc(var(--dx) * .5),calc(var(--dy) * .4 - 30px)) rotate(calc(var(--rot) / 8)) scale(.8)}}
+@keyframes nh-twinkle{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}30%{opacity:1;transform:translate(calc(var(--dx) * .4),calc(var(--dy) * .4)) scale(1.2) rotate(45deg)}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3) rotate(120deg)}}
+.hud .pt.ink{width:calc(5px * var(--sz,1));height:calc(5px * var(--sz,1));border-radius:50% 45% 55% 50%;background:#14110F;opacity:0;
+  animation:nh-ink 1.2s cubic-bezier(.15,.8,.3,1) forwards}
+@keyframes nh-ink{0%{opacity:0;transform:translate(0,0) scale(.3)}12%{opacity:.9}70%{opacity:.85;transform:translate(var(--dx),calc(var(--dy) * .6 + 10px)) scale(1)}
+  100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) * .6 + 16px)) scale(1.1,.6)}}
+.hud .pt.dust{width:calc(2px * var(--sz,1));height:calc(2px * var(--sz,1));background:#fff;border-radius:50%;opacity:0;animation:nh-dust 1.8s linear forwards}
+@keyframes nh-dust{0%{opacity:0}20%{opacity:.7}50%{opacity:.2}70%{opacity:.6}100%{opacity:0;transform:translate(calc(var(--dx) * .6),calc(var(--dy) * .5))}}
+.hud .pt.bit{width:4px;height:4px;background:var(--acc);box-shadow:0 0 0 1px rgba(0,0,0,.45);opacity:0;animation:nh-bit .9s steps(7) forwards}
+@keyframes nh-bit{0%{opacity:1;transform:translate(0,0)}45%{opacity:1;transform:translate(calc(var(--dx) * .6),calc(var(--dy) * .7 - 8px))}100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 14px))}}
