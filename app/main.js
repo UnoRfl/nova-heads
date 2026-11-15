@@ -245,19 +245,63 @@ else app.on("second-instance", () => app.isReady() && openPanel());   // launchi
 
 let panel = null, tray = null;
 
-function placeOverlay() {
-  const d = screen.getPrimaryDisplay().bounds;
+// ---------------------------------------------------------------- monitors + placement
+// cfg.display = Electron display id (+ display_hint = "x,y,w,h" in case ids change after a reboot / replug)
+// cfg.pos_x / pos_y = 0..1 position of the HUD window inside that monitor (0,0 top-left .. 1,1 bottom-right)
+const clamp01 = (v) => Math.min(1, Math.max(0, Number(v) || 0));
+const hintOf = (d) => [d.bounds.x, d.bounds.y, d.bounds.width, d.bounds.height].join(",");
+function displays() {
+  const prim = screen.getPrimaryDisplay().id;
+  return screen.getAllDisplays().slice().sort((a, b) => a.bounds.x - b.bounds.x || a.bounds.y - b.bounds.y)
+    .map((d, i) => ({ id: String(d.id), n: i + 1, primary: d.id === prim, x: d.bounds.x, y: d.bounds.y,
+                      w: d.bounds.width, h: d.bounds.height, label: d.label || "" }));
+}
+function pickDisplay() {
+  const all = screen.getAllDisplays();
+  return all.find((d) => String(d.id) === String(cfg.display))
+      || (cfg.display_hint && all.find((d) => hintOf(d) === cfg.display_hint))
+      || screen.getPrimaryDisplay();
+}
+function hudSize(d) {
   const sc = cfg.scale || 1;
-  const W = Math.round(400 * sc), H = Math.round(Math.min(d.height * 0.66, 660 * sc));
-  const x = cfg.anchor === "right" ? d.x + d.width - W - Math.max(0, cfg.margin - 24) : d.x + Math.max(0, cfg.margin - 24);
-  const y = d.y + Math.min(d.height - H, Math.max(0, Math.round(d.height * cfg.top) - 40));
+  return { W: Math.round(400 * sc), H: Math.round(Math.min(d.height * 0.66, 660 * sc)) };
+}
+function placeOverlay() {
+  const disp = pickDisplay(), d = disp.bounds, { W, H } = hudSize(d);
+  if (cfg.pos_x == null || cfg.pos_y == null) {          // migrate the old side + height settings
+    cfg.pos_x = cfg.anchor === "right" ? 1 : 0;
+    cfg.pos_y = clamp01((Math.round(d.height * (cfg.top ?? 0.33)) - 40) / Math.max(1, d.height - H));
+  }
+  const fx = clamp01(cfg.pos_x), fy = clamp01(cfg.pos_y);
+  const x = Math.round(d.x + fx * (d.width - W)), y = Math.round(d.y + fy * (d.height - H));
+  cfg.anchor = fx > 0.55 ? "right" : "left";              // heads hug the nearest edge, names point inward
+  cfg._valign = fy > 0.6 ? "bottom" : "top";              // near the bottom the list grows upward
   if (win) win.setBounds({ x, y, width: W, height: H });
+  cfg._display = String(disp.id);
   cfg._win = { x: x - d.x, y: y - d.y };
   cfg._screen = { w: d.width, h: d.height };
+  cfg._hud = { w: W, h: H };
   return { x, y, width: W, height: H };
 }
 
+// big number on every monitor for a couple of seconds, so you know which is which
+function identify() {
+  for (const d of displays()) {
+    const w = new BrowserWindow({ x: Math.round(d.x + d.w / 2 - 130), y: Math.round(d.y + d.h / 2 - 130), width: 260, height: 260,
+      frame: false, transparent: true, skipTaskbar: true, focusable: false, resizable: false, show: false, backgroundColor: "#00000000" });
+    w.setIgnoreMouseEvents(true);
+    w.setAlwaysOnTop(true, "screen-saver");
+    const html = `<body style="margin:0;height:100vh;display:grid;place-items:center;background:transparent;overflow:hidden">
+      <div style="width:200px;height:200px;display:grid;place-items:center;border:3px solid #4DF3FF;background:rgba(8,10,16,.82);
+      font:700 120px/1 Segoe UI,sans-serif;color:#4DF3FF;text-shadow:0 0 24px rgba(77,243,255,.6)">${d.n}</div></body>`;
+    w.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(html));
+    w.once("ready-to-show", () => w.showInactive());
+    setTimeout(() => { if (!w.isDestroyed()) w.close(); }, 2200);
+  }
+}
+
 function sendConfig() {
+  cfg._displays = displays();
   for (const w of [win, panel]) if (w && !w.isDestroyed()) w.webContents.send("config", { ...cfg, demo: DEMO });
 }
 
@@ -309,17 +353,25 @@ app.whenReady().then(() => {
   // real-glass mode: hand the overlay a capture of the primary screen, no picker
   session.defaultSession.setDisplayMediaRequestHandler((req, cb) => {
     desktopCapturer.getSources({ types: ["screen"] }).then((src) => {
-      const prim = screen.getPrimaryDisplay().id;
-      cb({ video: src.find((s) => String(s.display_id) === String(prim)) || src[0] });
+      const on = pickDisplay().id;          // capture the monitor the HUD is on
+      cb({ video: src.find((s) => String(s.display_id) === String(on)) || src[0] });
     }).catch(() => cb({}));
   });
   win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => { sendConfig(); win.showInactive(); push(); });
 
   ipcMain.on("ready", () => { sendConfig(); push(); });
+  ipcMain.on("setMany", (_e, obj) => {
+    for (const [k, v] of Object.entries(obj || {})) if (["pos_x", "pos_y"].includes(k)) cfg[k] = clamp01(v);
+    placeOverlay(); saveCfg(); sendConfig(); push();
+  });
+  ipcMain.on("identify", identify);
+  const replace = () => { placeOverlay(); sendConfig(); push(); };
+  screen.on("display-added", replace); screen.on("display-removed", replace); screen.on("display-metrics-changed", replace);
   ipcMain.on("set", (_e, { key, value }) => {
     cfg[key] = value;
-    if (["anchor", "top", "scale"].includes(key)) placeOverlay();
+    if (key === "display") { const d = screen.getAllDisplays().find((x) => String(x.id) === String(value)); if (d) cfg.display_hint = hintOf(d); }
+    if (["pos_x", "pos_y", "scale", "display"].includes(key)) placeOverlay();
     if (key === "real_glass") applyGlass();
     if (key === "autostart" && !TEST) app.setLoginItemSettings({ openAtLogin: !!value, args: [] });
     saveCfg();
@@ -332,6 +384,7 @@ app.whenReady().then(() => {
   globalShortcut.register("Control+Alt+H", () => (win.isVisible() ? win.hide() : win.showInactive()));
   globalShortcut.register("Control+Alt+J", openPanel);
   globalShortcut.register("Control+Alt+Shift+H", () => app.quit());
+  if (!TEST) setTimeout(() => { sendConfig(); }, 500);
   if (!TEST) { makeTray(); if (FIRST_RUN || argv.includes("--panel")) openPanel(); saveCfg(); }
   if (argv.includes("--panel") && TEST) openPanel();
 
@@ -355,7 +408,8 @@ app.whenReady().then(() => {
   }
   // --cfg key=value,key=value : override config for a test run (not saved)
   const OV = arg("--cfg");
-  if (OV) { for (const kv of OV.split(",")) { const [k, v] = kv.split("="); cfg[k] = v === "true" ? true : v === "false" ? false : isNaN(+v) ? v : +v; } sendConfig(); }
+  if (OV) { for (const kv of OV.split(",")) { const [k, v] = kv.split("="); cfg[k] = v === "true" ? true : v === "false" ? false : isNaN(+v) ? v : +v; } placeOverlay(); sendConfig(); }
+  if (TEST) log("overlay bounds " + JSON.stringify(win.getBounds()) + " on display " + cfg._display + " anchor " + cfg.anchor + " valign " + cfg._valign + " displays " + JSON.stringify(displays().map((d) => [d.id, d.x, d.w])));
   if (SECONDS) setTimeout(() => app.quit(), SECONDS * 1000);
 });
 

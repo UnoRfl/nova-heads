@@ -82,6 +82,33 @@ h2{font:600 18px/1 'Chakra Petch';letter-spacing:.1em;margin:4px 0 4px}
 .card.on .chk{display:grid}
 .well.light{background:linear-gradient(160deg,#cfd6e6,#a9b4cc 60%,#d9def0)}
 
+/* monitor map (layout) */
+.fr.stack{flex-direction:column;align-items:stretch;gap:12px}
+.monmap{position:relative;height:200px;background:rgba(0,0,0,.28);border:1px solid var(--edge);overflow:hidden}
+.mon{position:absolute;border:1px solid rgba(255,255,255,.22);background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  cursor:pointer;transition:border-color .15s,background .15s}
+.mon:hover{border-color:var(--edge-hi)}
+.mon.on{border-color:var(--c);background:linear-gradient(160deg,rgba(77,243,255,.12),rgba(77,243,255,.03));cursor:default}
+.mon .lab{position:absolute;left:8px;bottom:6px;font:400 9.5px/1.3 'JetBrains Mono';color:var(--dim);pointer-events:none}
+.mon .num{position:absolute;right:8px;top:4px;font:600 22px/1 'Chakra Petch';color:rgba(255,255,255,.35);pointer-events:none}
+.mon.on .num{color:var(--c)}
+.hudbox{position:absolute;cursor:grab;border:1px dashed var(--c);background:rgba(77,243,255,.10);touch-action:none;
+  display:flex;flex-direction:column;gap:3px;padding:5px;box-sizing:border-box}
+.hudbox.drag{cursor:grabbing;background:rgba(77,243,255,.2)}
+.hudbox i{display:flex;gap:3px;height:6px}
+.hudbox i::before{content:"";width:6px;background:var(--c)}
+.hudbox i::after{content:"";width:var(--w,24px);background:rgba(77,243,255,.55)}
+.hudbox.r{align-items:flex-end}.hudbox.r i{flex-direction:row-reverse}
+.hudbox.b{justify-content:flex-end}
+.posrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pgrid{display:grid;grid-template-columns:repeat(3,26px);grid-auto-rows:20px;gap:3px;border:1px solid var(--edge);padding:3px}
+.pgrid button{all:unset;cursor:pointer;background:rgba(255,255,255,.06);position:relative}
+.pgrid button::after{content:"";position:absolute;width:6px;height:6px;background:var(--dim);left:calc(var(--px) * (100% - 6px));top:calc(var(--py) * (100% - 6px))}
+.pgrid button:hover{background:rgba(255,255,255,.14)}
+.pgrid button.on{background:rgba(77,243,255,.22)}.pgrid button.on::after{background:var(--c)}
+.posval{font:400 10.5px/1.5 'JetBrains Mono';color:var(--dim);margin-left:auto}
+.posval b{color:var(--txt);font-weight:500}
+
 /* palettes */
 .pal{cursor:pointer;padding:12px}
 .pal.on{border-color:var(--c);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),5px 5px 0 rgba(77,243,255,.18)}
@@ -173,10 +200,10 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
     <section class="page" id="p-layout">
       <h2>LAYOUT</h2><div class="sub">// where the HUD sits and how big it is.</div>
       <div class="rows">
-        <div class="fr glass"><div class="t"><b>SIDE</b><span>which edge of your main screen</span></div>
-          <div class="seg" data-k="anchor"><button data-v="left">LEFT</button><button data-v="right">RIGHT</button></div></div>
-        <div class="fr glass"><div class="t"><b>HEIGHT</b><span>vertical position</span></div>
-          <input type="range" data-k="top" min="0.02" max="0.8" step="0.01"><span class="val" data-for="top"></span></div>
+        <div class="fr glass stack"><div class="t"><b>SCREEN &amp; POSITION</b><span>click a monitor to put the HUD on it, then drag the box anywhere (snaps to edges &amp; centre)</span></div>
+          <div class="monmap" id="monmap"></div>
+          <div class="posrow"><div class="pgrid" id="pgrid"></div><button class="btn" id="identify">IDENTIFY SCREENS</button>
+            <div class="posval" id="posval"></div></div></div>
         <div class="fr glass"><div class="t"><b>SIZE</b><span>scale of everything</span></div>
           <input type="range" data-k="scale" min="0.7" max="1.8" step="0.05"><span class="val" data-for="scale"></span></div>
         <div class="fr glass"><div class="t"><b>IDLE OPACITY</b><span>how faded people are when quiet</span></div>
@@ -302,6 +329,82 @@ document.querySelectorAll("nav button").forEach((b) => b.onclick = () => {
 
 // ---------- controls
 function set(k, v) { cfg[k] = v; window.nova.set(k, v); apply(); }
+
+// ---------- monitor map + drag positioning
+const $map = document.getElementById("monmap"), $pgrid = document.getElementById("pgrid");
+let dragging = false;
+const SPOTS = [[0, 0], [.5, 0], [1, 0], [0, .5], [.5, .5], [1, .5], [0, 1], [.5, 1], [1, 1]];
+for (const [px, py] of SPOTS) {
+  const b = document.createElement("button");
+  b.style.setProperty("--px", px); b.style.setProperty("--py", py); b.dataset.p = px + "," + py;
+  b.title = `${["top", "middle", "bottom"][py * 2]} ${["left", "centre", "right"][px * 2]}`;
+  b.onclick = () => moveTo(px, py, true);
+  $pgrid.appendChild(b);
+}
+document.getElementById("identify").onclick = () => window.nova.identify();
+let lastSend = 0, pend = null;
+function moveTo(x, y, now) {
+  cfg.pos_x = x; cfg.pos_y = y;
+  pend = { pos_x: x, pos_y: y };
+  const t = performance.now();
+  if (now || t - lastSend > 40) { window.nova.setMany(pend); pend = null; lastSend = t; }
+  if (!dragging) drawMap(); else markPos();
+}
+function markPos() {
+  const x = cfg.pos_x ?? 0, y = cfg.pos_y ?? 0;
+  $pgrid.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.p === x + "," + y));
+  const d = (cfg._displays || []).find((m) => m.id === cfg._display);
+  document.getElementById("posval").innerHTML = (d ? `SCREEN <b>${d.n}</b>${d.primary ? " (main)" : ""} · ` : "") +
+    `X <b>${Math.round(x * 100)}%</b> · Y <b>${Math.round(y * 100)}%</b>`;
+}
+function drawMap() {
+  markPos();
+  const ds = cfg._displays || [];
+  if (!ds.length || dragging) return;
+  const MW = $map.clientWidth || 520, MH = $map.clientHeight || 200, pad = 14;
+  const minX = Math.min(...ds.map((d) => d.x)), minY = Math.min(...ds.map((d) => d.y));
+  const maxX = Math.max(...ds.map((d) => d.x + d.w)), maxY = Math.max(...ds.map((d) => d.y + d.h));
+  const k = Math.min((MW - pad * 2) / (maxX - minX), (MH - pad * 2) / (maxY - minY));
+  const ox = (MW - (maxX - minX) * k) / 2, oy = (MH - (maxY - minY) * k) / 2;
+  $map.innerHTML = "";
+  for (const d of ds) {
+    const el = document.createElement("div"), on = d.id === cfg._display;
+    el.className = "mon" + (on ? " on" : "");
+    const w = d.w * k, h = d.h * k;
+    Object.assign(el.style, { left: ox + (d.x - minX) * k + 1 + "px", top: oy + (d.y - minY) * k + 1 + "px", width: w - 2 + "px", height: h - 2 + "px" });
+    el.innerHTML = `<span class="num">${d.n}</span><span class="lab">${d.w}×${d.h}${d.primary ? " · MAIN" : ""}</span>`;
+    if (!on) el.onclick = () => set("display", d.id);
+    $map.appendChild(el);
+    if (!on) continue;
+    // the HUD box, same size relative to the monitor as the real overlay
+    const hw = Math.min(400 * (cfg.scale || 1), d.w) * k, hh = Math.min(d.h * .66, 660 * (cfg.scale || 1)) * k;
+    const box = document.createElement("div");
+    box.className = "hudbox";
+    box.style.width = hw + "px"; box.style.height = hh + "px";
+    box.innerHTML = [30, 22, 34, 18, 26].map((v) => `<i style="--w:${v * hw / 100}px"></i>`).join("");
+    const put = () => {
+      box.style.left = (cfg.pos_x ?? 0) * (w - 2 - hw) + "px"; box.style.top = (cfg.pos_y ?? 0) * (h - 2 - hh) + "px";
+      box.classList.toggle("r", (cfg.pos_x ?? 0) > .55); box.classList.toggle("b", (cfg.pos_y ?? 0) > .6);
+    };
+    put();
+    el.appendChild(box);
+    box.onpointerdown = (e) => {
+      dragging = true; box.classList.add("drag"); box.setPointerCapture(e.pointerId);
+      const r = el.getBoundingClientRect(), gx = e.clientX - box.getBoundingClientRect().left, gy = e.clientY - box.getBoundingClientRect().top;
+      box.onpointermove = (ev) => {
+        const snap = (v) => { for (const s of [0, .5, 1]) if (Math.abs(v - s) < .04) return s; return Math.round(v * 1000) / 1000; };
+        const fx = snap(Math.min(1, Math.max(0, (ev.clientX - r.left - gx) / Math.max(1, r.width - 2 - hw))));
+        const fy = snap(Math.min(1, Math.max(0, (ev.clientY - r.top - gy) / Math.max(1, r.height - 2 - hh))));
+        moveTo(fx, fy); put();
+      };
+      box.onpointerup = () => {
+        box.onpointermove = box.onpointerup = null; box.classList.remove("drag"); dragging = false;
+        window.nova.setMany({ pos_x: cfg.pos_x, pos_y: cfg.pos_y }); drawMap();
+      };
+    };
+  }
+}
+new ResizeObserver(() => drawMap()).observe($map);
 document.querySelectorAll(".seg").forEach((s) => s.querySelectorAll("button").forEach((b) => b.onclick = () => set(s.dataset.k, b.dataset.v)));
 document.querySelectorAll(".tog").forEach((t) => t.onclick = () => set(t.dataset.k, !t.classList.contains("on")));
 document.querySelectorAll("input[type=range]").forEach((r) => r.oninput = () => set(r.dataset.k, parseFloat(r.value)));
@@ -333,6 +436,7 @@ function apply() {
     document.querySelector(`.val[data-for=${r.dataset.k}]`).textContent = r.dataset.k === "top" ? Math.round(v * 100) + "%" : v.toFixed(2);
   });
   if (cfg.accent_override) document.getElementById("accent").value = cfg.accent_override;
+  drawMap();
   document.getElementById("pvname").textContent = (THEMES.find((t) => t[0] === (cfg.theme || "cyber")) || ["", "CYBER"])[1];
   for (const h of huds) h.hud.setConfig({ ...cfg, theme: h.fixedTheme || cfg.theme, anchor: "left", only_speaking: false, hide_self: false,
                                           palette: h.fixedTheme ? "default" : cfg.palette });

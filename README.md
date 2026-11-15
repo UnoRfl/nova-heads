@@ -40,6 +40,8 @@ official local RPC.
   Ink 墨 (calligraphy), Noir (b&w film), Oni 鬼 (samurai), Anime (manga panel), Pop (cutesy stickers) and 8-Bit. Every card is a live preview.
 - **Color**: palettes that recolour any style (Aurora, Sunset, Ocean, Candy, Toxic, Blood, Ice, Gold) plus an accent override.
 - **Layout**: left/right side, height, size, idle opacity, header/names, show only who's talking, hide yourself.
+- **Layout**: pick **which monitor** the HUD is on from a map of your screens (IDENTIFY flashes each screen's number),
+  then drag the HUD box anywhere or use the 9-spot grid. Heads hug the nearest edge and the list grows upward near the bottom.
 - **Effects**: join/leave animation (each style's own signature: glitch, brush stroke, katana slash, film flicker, sticker pop,
   8-bit pop + pixel burst... or soft / none), synthesized **sound effects** per style with a volume slider, particles, and **real glass blur**.
 - **Setup**: start with Windows, custom heads folder.

@@ -8,7 +8,10 @@
 <link rel="stylesheet" href="themes.css">
 <style>
   html,body{margin:0;background:transparent;overflow:hidden;width:100%;height:100%;cursor:none}
-  body{padding:40px 24px;box-sizing:border-box}
+  body{padding:40px 24px;box-sizing:border-box;display:flex;flex-direction:column}
+  body.bottom{justify-content:flex-end}
+  .hud.bottom{transform-origin:0 100%}
+  .hud.right.bottom{transform-origin:100% 100%}
   #glass{position:fixed;inset:0;pointer-events:none;display:none}
 </style>
 </head>
@@ -71,6 +74,9 @@ function loop() {
 window.nova.onConfig((c) => {
   cfg = c;
   hud.setConfig(c);
+  const bottom = c._valign === "bottom";
+  document.body.classList.toggle("bottom", bottom);
+  document.getElementById("hud").classList.toggle("bottom", bottom);
   if (c.real_glass) startGlass(); else stopGlass();
 });
 window.nova.onState((s) => hud.render(s));

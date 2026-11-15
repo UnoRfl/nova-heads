@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld("nova", {
   onConfig: (fn) => ipcRenderer.on("config", (_e, c) => fn(c)),
   ready: () => ipcRenderer.send("ready"),
   set: (key, value) => ipcRenderer.send("set", { key, value }),
+  setMany: (obj) => ipcRenderer.send("setMany", obj),
+  identify: () => ipcRenderer.send("identify"),
   openHeads: () => ipcRenderer.send("openHeads"),
   win: (what) => ipcRenderer.send("win", what),
 });
