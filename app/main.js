@@ -240,6 +240,7 @@ app.commandLine.appendSwitch("disable-renderer-backgrounding");
 const TEST = SHOT || argv.includes("--burst");
 if (TEST) app.setPath("userData", path.join(require("os").tmpdir(), "nova-heads-test"));   // don't fight the live copy
 else if (!app.requestSingleInstanceLock()) app.quit();
+else app.on("second-instance", () => app.isReady() && openPanel());   // launching again (e.g. desktop shortcut) = open the panel
 
 let panel = null, tray = null;
 
