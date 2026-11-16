@@ -42,6 +42,7 @@
 .hud .hdr .rule{flex:0 0 22px;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
 .hud .hdr .n{color:var(--c);opacity:.8}
 @keyframes nh-pip{0%,100%{opacity:1}50%{opacity:.35}}
+.hud:not(.anytalk) .hdr .pip{animation:none}   /* performance: the live pip only pulses while someone talks */
 
 /* ---------- rows ---------- */
 .hud .list{list-style:none;display:flex;flex-direction:column}
@@ -79,7 +80,7 @@
   background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--acc) 35%,transparent) 85%,var(--acc) 100%);opacity:.55}
 .hud .row.talk .scan{opacity:1}
 .hud .row.talk .scan::after{animation:nh-scan 1.8s cubic-bezier(.4,0,.2,1) infinite}
-@keyframes nh-scan{0%{top:-40%}70%,100%{top:110%}}
+@keyframes nh-scan{0%{transform:translateY(0)}70%,100%{transform:translateY(375%)}}   /* transform, not top: no layout per frame */
 
 .hud .br{position:absolute;width:6px;height:6px;border:0 solid var(--acc);opacity:0;
   transition:transform .28s cubic-bezier(.2,.9,.25,1.2),opacity .2s ease}
@@ -120,7 +121,7 @@
   transition:width .25s ease,margin .25s ease}
 .hud .row.talk .wave{width:19px;margin-left:11px}
 .hud .wave i{display:block;width:1.5px;height:100%;background:var(--acc);transform:scaleY(.2);border-radius:1px}
-.hud .row.talk .wave i{animation:nh-eq .9s ease-in-out infinite}
+.hud .row.talk .wave i{animation:nh-eq .9s steps(6) infinite}
 .hud .wave i:nth-child(1){animation-duration:.82s!important}
 .hud .wave i:nth-child(2){animation-duration:.61s!important;animation-delay:-.2s!important}
 .hud .wave i:nth-child(3){animation-duration:.95s!important;animation-delay:-.45s!important}

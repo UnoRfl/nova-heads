@@ -32,7 +32,7 @@ module.exports = function createSpotify({ root, log, onState, demo }) {
   }
 
   const DEMO = [
-    { id: "d1", title: "Binhi", artist: "Arthur Nery", album: "Letters Never Sent", dur: 228000 },
+    { id: "d1", title: "A Very Long Song Title That Does Not Fit (Extended Version)", artist: "Some Artist, Another Artist", album: "An Album With A Long Name", dur: 228000 },
     { id: "d2", title: "Saturn", artist: "SZA", album: "SOS Deluxe: Lana", dur: 186000 },
   ];
   let di = 0, d0 = Date.now() - 64000;
@@ -60,7 +60,7 @@ module.exports = function createSpotify({ root, log, onState, demo }) {
     last = { ...s, at: Date.now() };
     onState(last);
   }
-  function loop() { clearTimeout(timer); timer = setTimeout(async () => { await poll(); loop(); }, fast ? 1500 : 5000); }
+  function loop() { clearTimeout(timer); timer = setTimeout(async () => { await poll(); loop(); }, fast ? 1500 : 3000); }
 
   async function playlists(force) {
     if (demo || !fs.existsSync(TOKEN_FILE)) return [];

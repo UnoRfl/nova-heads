@@ -10,7 +10,8 @@
 html,body{margin:0;background:transparent;overflow:hidden;width:100%;height:100%;user-select:none}
 body{padding:14px;box-sizing:border-box;transition:opacity .3s}
 #np{transform:scale(var(--s,1));transform-origin:0 0}
-html,body{cursor:none}
+html,body{cursor:default}
+#np .ctl button,#np .prog{cursor:pointer}
 </style>
 </head>
 <body>
@@ -20,7 +21,7 @@ html,body{cursor:none}
   <div class="info">
     <div class="top"><div class="eq"><i></i><i></i><i></i><i></i></div><span id="st">NOW PLAYING</span><span class="dev" id="dev"></span></div>
     <div class="ttl" id="tbox"><span id="title"></span></div>
-    <div class="art2" id="artist"></div>
+    <div class="art2" id="artist"><span></span></div>
     <div class="row"><div class="prog" id="prog"><i id="bar"></i></div><span class="tm" id="tm"></span></div>
     <div class="row ctlrow">
       <div class="ctl">

@@ -1,9 +1,9 @@
-# Builds NovaHeads-win-x64.zip: the app + an untouched copy of the Electron runtime + launcher.
-# Run from the repo root after `cd app; npm install`.   Output: dist\NovaHeads-win-x64.zip
+# Builds NovaStreamHub-win-x64.zip: the app + an untouched copy of the Electron runtime + launcher.
+# Run from the repo root after `cd app; npm install`.   Output: dist\NovaStreamHub-win-x64.zip
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $out = Join-Path $root "dist"
-$stage = Join-Path $out "NovaHeads"
+$stage = Join-Path $out "NovaStreamHub"
 $electron = Join-Path $root "app\node_modules\electron\dist"
 if (-not (Test-Path (Join-Path $electron "electron.exe"))) { throw "Run 'npm install' in app\ first." }
 
@@ -19,9 +19,9 @@ Get-ChildItem (Join-Path $root "app") -Directory | Where-Object { $_.Name -notin
   ForEach-Object { Copy-Item -Recurse $_.FullName (Join-Path $stage "app\$($_.Name)") }
 # runtime: the official Electron build, unmodified (keeps its signature/reputation for SmartScreen & Smart App Control)
 Copy-Item -Recurse $electron (Join-Path $stage "runtime")
-Copy-Item (Join-Path $root "Start Nova Heads.bat"), (Join-Path $root "README.md"), (Join-Path $root "LICENSE") $stage
+Copy-Item (Join-Path $root "Start Nova StreamHub.bat"), (Join-Path $root "Start Nova Heads.bat"), (Join-Path $root "README.md"), (Join-Path $root "LICENSE") $stage
 Copy-Item (Join-Path $root "heads\README.txt") (Join-Path $stage "heads")
 
-$zip = Join-Path $out "NovaHeads-win-x64.zip"
+$zip = Join-Path $out "NovaStreamHub-win-x64.zip"
 Compress-Archive -Path $stage -DestinationPath $zip -CompressionLevel Optimal
 "built $zip ($([math]::Round((Get-Item $zip).Length / 1MB)) MB)"

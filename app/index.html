@@ -93,7 +93,7 @@ setInterval(() => {
   const rect = x1 > x0 ? { x: Math.floor(x0), y: Math.floor(y0), w: Math.ceil(x1 - x0), h: Math.ceil(y1 - y0) } : null;
   const k = JSON.stringify(rect);
   if (k !== lastRect) { lastRect = k; window.nova.hudRect(rect); }
-}, 300);
+}, 500);
 window.nova.ready();
 </script>
 </body>

@@ -471,7 +471,9 @@ function openMusic() {
     webPreferences: { preload: path.join(__dirname, "preload.js"), backgroundThrottling: false } });
   musicWin.setAlwaysOnTop(true, "screen-saver");   // same layer as the voice HUD (stays over borderless games)
   musicWin.setContentProtection(!!cfg.music_hide_capture);
-  musicWin.setIgnoreMouseEvents(true);   // click-through, like the HUD: it can never steal a click while you work or play
+  // click-through like the HUD, EXCEPT the play/skip buttons + progress bar: mouse moves are forwarded so the card
+  // can say "pointer is over a button" and become clickable just there
+  musicWin.setIgnoreMouseEvents(true, { forward: true });
   musicWin.loadFile(path.join(__dirname, "music.html"));
   musicWin.webContents.once("did-finish-load", () => { sendConfig(); musicWin.webContents.send("music", spotify.state()); if (!SHOT || argv.includes("--show-test")) musicWin.showInactive(); musicFast(); });
   // dragged by hand on the desktop: store screen + fractions, then bump it off the HUD if it landed on it
@@ -616,6 +618,14 @@ app.whenReady().then(() => {
   ipcMain.on("music", (_e, { cmd, arg }) => spotify.control(cmd, arg));
   ipcMain.handle("spotifyConnect", (_e, id) => spotify.connect(id, (u) => shell.openExternal(u)).then(() => ({ ok: true })).catch((e) => ({ ok: false, msg: e.message })));
   ipcMain.on("spotifyLogout", () => spotify.logout());
+  // the card asks to be hidden while nothing plays (zero cost) and shown again when music starts
+  ipcMain.on("musicClickable", (_e, v) => { if (TEST || argv.includes("--debug-mouse")) log("musicClickable " + v); if (musicWin && !musicWin.isDestroyed()) musicWin.setIgnoreMouseEvents(!v, { forward: true }); });
+  ipcMain.on("dbg", (_e, m) => log("dbg " + m));
+  ipcMain.on("musicVisible", (_e, v) => {
+    if (!musicWin || musicWin.isDestroyed() || SHOT) return;
+    if (v) { if (!musicWin.isVisible()) musicWin.showInactive(); } else if (musicWin.isVisible()) musicWin.hide();
+    musicFast();
+  });
   ipcMain.on("hudRect", (_e, r) => {
     hudContent = r;
     const b = win && !win.isDestroyed() ? win.getBounds() : null, dd = pickDisplay().bounds;

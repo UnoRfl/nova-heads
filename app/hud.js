@@ -246,7 +246,7 @@
         if (r.el.classList.contains("talk")) { r.t0 = r.t0 || now; r.el.style.setProperty("--heat", Math.min(1, (now - r.t0) / 4000).toFixed(2)); }
         else if (r.t0) { r.t0 = 0; r.el.style.setProperty("--heat", "0"); }
       }
-    }, 200);
+    }, 500);
 
     const fxMode = () => {
       const pick = cfg.fx && cfg.fx !== "auto" ? cfg.fx : getComputedStyle(root).getPropertyValue("--fx").trim() || "glitch";
@@ -309,23 +309,27 @@
         el.dataset.st = p.st;
         if (!r.fresh && r.st !== p.st && /mute|deaf/.test(r.st + p.st)) animate(el, "blip");
         r.st = p.st;
-        el.querySelector(".tag").textContent = TAGS[p.st] || "";
-        el.style.display = cfg.only_speaking && !talking ? "none" : "";
-        if (p.accent) el.style.setProperty("--talk", p.accent);
+        const put = (sel, k, v, html) => { if (r["_" + k] === v) return; r["_" + k] = v; const n = el.querySelector(sel); if (html) n.innerHTML = v; else n.textContent = v; };
+        put(".tag", "tag", TAGS[p.st] || "");
+        const disp = cfg.only_speaking && !talking ? "none" : "";
+        if (r._disp !== disp) { r._disp = disp; el.style.display = disp; }
+        if (p.accent && r._acc !== p.accent) { r._acc = p.accent; el.style.setProperty("--talk", p.accent); }
         const src = (talking && p.avatarTalk) || p.avatar || initials(p.name, p.id);
         if (src !== r.src) { el.querySelector("img").src = src; r.src = src; }
-        el.querySelector(".idx").textContent = String(i + 1).padStart(2, "0");
-        el.querySelector(".name").textContent = p.name;
+        put(".idx", "idx", String(i + 1).padStart(2, "0"));
+        put(".name", "name", p.name);
         r.name = p.name;
-        el.querySelector(".you").textContent = p.me ? "YOU" : "";
-        el.querySelector(".st").innerHTML = p.deaf ? DEAF : p.mute ? MIC_OFF : "";
-        el.querySelector(".plate").style.display = cfg.show_names === false ? "none" : "";
+        put(".you", "you", p.me ? "YOU" : "");
+        put(".st", "st", p.deaf ? DEAF : p.mute ? MIC_OFF : "", true);
+        const pd = cfg.show_names === false ? "none" : "";
+        if (r._pd !== pd) { r._pd = pd; el.querySelector(".plate").style.display = pd; }
         if (r.fresh) { r.fresh = false; setTimeout(() => animate(el, "in"), 90 * (batch++)); if (sameRoom) toast(p.name, "JOINED", "join"); }
       });
       root.querySelector(".ch").textContent = s.channel || "";
       root.querySelector(".n").textContent = people.length ? String(people.length).padStart(2, "0") : "";
       $hdr.style.display = cfg.show_header === false ? "none" : "";
       root.classList.toggle("empty", !s.channel || !people.length);
+      root.classList.toggle("anytalk", people.some((p) => p.speaking && !p.mute));
       prevChannel = s.channel; rendered = true;
     }
 

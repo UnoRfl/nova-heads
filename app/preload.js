@@ -24,6 +24,9 @@ contextBridge.exposeInMainWorld("nova", {
   music: (cmd, arg) => ipcRenderer.send("music", { cmd, arg }),
   playlists: (force) => ipcRenderer.invoke("playlists", !!force),
   hudRect: (r) => ipcRenderer.send("hudRect", r),
+  musicVisible: (v) => ipcRenderer.send("musicVisible", !!v),
+  musicClickable: (v) => ipcRenderer.send("musicClickable", !!v),
+  dbg: (m) => ipcRenderer.send("dbg", String(m)),
   spotifyConnect: (id) => ipcRenderer.invoke("spotifyConnect", id),
   spotifyLogout: () => ipcRenderer.send("spotifyLogout"),
 });

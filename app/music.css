@@ -5,7 +5,7 @@
   background:var(--bgc);box-sizing:border-box;font:var(--af);-webkit-font-smoothing:antialiased;transition:opacity .4s,filter .4s}
 .np *{box-sizing:border-box}
 .np.hidden{opacity:0;filter:blur(6px)}
-.np .bg{position:absolute;inset:-40px;background:center/cover no-repeat;filter:blur(28px) saturate(1.6) brightness(.55);opacity:.4;pointer-events:none}
+.np .bg{position:absolute;inset:-40px;background:center/cover no-repeat;filter:blur(28px) saturate(1.6) brightness(.55);opacity:.4;pointer-events:none;will-change:transform;contain:strict}
 .np .deco{position:absolute;inset:0;pointer-events:none}
 .np .artw{position:relative;width:96px;height:96px;flex:none}
 .np .art{position:absolute;inset:0;background:#151a26 center/cover;transition:background-image .4s}
@@ -14,15 +14,19 @@
 .np .top{display:flex;align-items:center;gap:7px;font:var(--lf);letter-spacing:.18em;color:var(--dim)}
 .np .top .dev{margin-left:auto;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.06em}
 .np .eq{display:flex;gap:2px;align-items:flex-end;height:9px}
-.np .eq i{width:2px;background:var(--c);animation:np-eq .8s ease-in-out infinite alternate}
+.np .eq i{width:2px;height:9px;background:var(--c);transform-origin:50% 100%;animation:np-eq .8s steps(4) infinite alternate}
 .np .eq i:nth-child(2){animation-delay:-.25s}.np .eq i:nth-child(3){animation-delay:-.5s}.np .eq i:nth-child(4){animation-delay:-.12s}
-@keyframes np-eq{0%{height:2px}100%{height:9px}}
-.np.paused .eq i{animation:none;height:2px}
+@keyframes np-eq{0%{transform:scaleY(.22)}100%{transform:scaleY(1)}}
+.np.paused .eq i{animation:none;transform:scaleY(.22)}
 .np .ttl{margin-top:7px;height:22px;overflow:hidden;white-space:nowrap;-webkit-mask:linear-gradient(90deg,#000 88%,transparent)}
 .np .ttl span{display:inline-block;font:var(--tf);letter-spacing:.03em}
-.np .ttl.scroll span{padding-right:48px;animation:np-mq var(--d) linear infinite}
-@keyframes np-mq{0%,15%{transform:translateX(0)}100%{transform:translateX(var(--w))}}
-.np .art2{color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+/* too long to fit: slowly slide to the end, pause, slide back (ping-pong), only while it's needed */
+.np .ttl.scroll span,.np .art2.scroll span{animation:np-mq var(--d) ease-in-out infinite alternate;will-change:transform}
+@keyframes np-mq{0%,18%{transform:translateX(0)}82%,100%{transform:translateX(var(--w))}}
+.np .ttl.scroll{-webkit-mask:linear-gradient(90deg,transparent,#000 4%,#000 92%,transparent)}
+.np .art2{color:var(--dim);white-space:nowrap;overflow:hidden;margin-top:1px}
+.np .art2 span{display:inline-block}
+.np .art2.scroll{-webkit-mask:linear-gradient(90deg,transparent,#000 4%,#000 92%,transparent)}
 .np .row{margin-top:auto;display:flex;align-items:center;gap:10px}
 .np .ctlrow{margin-top:6px;justify-content:flex-end}
 .np .prog{flex:1;height:2px;background:rgba(255,255,255,.16);position:relative;cursor:pointer}
@@ -49,8 +53,9 @@
 .np[data-theme=cyber] .deco::before{top:4px;right:4px;border-top-width:1.5px;border-right-width:1.5px}
 .np[data-theme=cyber] .deco::after{bottom:4px;left:4px;border-bottom-width:1.5px;border-left-width:1.5px}
 .np[data-theme=cyber] .art{clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
-.np[data-theme=cyber] .scan,.np[data-theme=custom] .scan{opacity:1;background:linear-gradient(transparent 0,rgba(255,255,255,.18) 50%,transparent 52%) 0 -96px/100% 200% no-repeat;animation:np-scan 4s linear infinite}
-@keyframes np-scan{to{background-position:0 96px}}
+.np[data-theme=cyber] .scan,.np[data-theme=custom] .scan{opacity:1;overflow:hidden}
+.np[data-theme=cyber] .scan::after,.np[data-theme=custom] .scan::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:linear-gradient(transparent,rgba(255,255,255,.22),transparent);transform:translateY(-10px);animation:np-scan 4s linear infinite;will-change:transform}
+@keyframes np-scan{to{transform:translateY(100px)}}
 .np.paused .scan{animation:none;opacity:0}
 
 /* ============ GLASS CUBE */
@@ -261,3 +266,7 @@
 .np.fx-out{pointer-events:none}
 /* small hit on every song change */
 .np.swapfx .artw,.np.swapfx .info{animation:npf-glitch .45s steps(1) both}
+
+/* performance: ambient loops only run while music is actually playing and the card is on screen */
+.np.paused *,.np.paused::before,.np.paused::after,.np.off *,.np.hidden *,.np.paused .deco,.np.hidden .deco{animation-play-state:paused !important}
+.np .deco{contain:strict}

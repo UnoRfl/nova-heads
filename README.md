@@ -40,9 +40,9 @@ The login is stored in `spotify_token.json` next to the app, on your PC only. Sp
 
 ## Download & run (2 minutes)
 
-1. Go to **[Releases](../../releases/latest)** and download **`NovaHeads-win-x64.zip`**.
+1. Go to **[Releases](../../releases/latest)** and download **`NovaStreamHub-win-x64.zip`**.
 2. Extract it anywhere (for example `Documents\NovaHeads`).
-3. Double-click **`Start Nova Heads.bat`**.
+3. Double-click **`Start Nova StreamHub.bat`**.
 4. The first time, Discord shows an **Authorize** box. Click **Authorize**.
 5. The control panel opens. Pick a style, and you're done.
 

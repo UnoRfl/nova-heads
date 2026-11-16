@@ -1,6 +1,6 @@
 {
   "name": "nova-heads",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Nova StreamHub: custom Discord voice HUD + Spotify now-playing widget, 17 styles, glass control panel. No mods, no bot.",
   "private": true,
   "main": "main.js",
