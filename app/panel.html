@@ -2,10 +2,11 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data: https://cdn.discordapp.com; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'">
-<title>Nova Heads - Control</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'">
+<title>Nova StreamHub - Control</title>
 <link rel="stylesheet" href="hud.css">
 <link rel="stylesheet" href="themes.css">
+<link rel="stylesheet" href="music.css">
 <style>
 :root{
   --c:#4DF3FF; --txt:#EAF4FF; --dim:#8D9AB0; --faint:rgba(255,255,255,.07);
@@ -135,6 +136,43 @@ select option{background:#151a26;color:var(--txt)}
 .gbanner b{color:var(--c)}
 .surl{font:500 12px 'JetBrains Mono';color:var(--c);user-select:text}
 
+/* music */
+.nph{display:flex;gap:16px;padding:14px;position:relative;overflow:hidden;min-height:168px}
+.nph .bgx{position:absolute;inset:-40px;background:center/cover;filter:blur(30px) saturate(1.5) brightness(.45);opacity:.8}
+.nph .cv{position:relative;width:140px;height:140px;flex:none;background:rgba(255,255,255,.06) center/cover;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.nph .tx{position:relative;flex:1;min-width:0;display:flex;flex-direction:column}
+.nph .k1{font:400 9.5px 'JetBrains Mono';letter-spacing:.18em;color:var(--dim)}
+.nph .t1{font:600 22px/1.15 'Chakra Petch';letter-spacing:.03em;margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nph .a1{color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nph .pr{margin-top:auto;height:2px;background:rgba(255,255,255,.15);cursor:pointer;position:relative}
+.nph .pr::before{content:"";position:absolute;inset:-6px 0}
+.nph .pr i{display:block;height:100%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.nph .ct{display:flex;align-items:center;gap:6px;margin-top:10px}
+.nph .ct .btn{padding:8px 11px}
+.nph .ct .tm{margin-left:auto;font:400 10.5px 'JetBrains Mono';color:var(--dim)}
+.plg{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:12px}
+.plc{cursor:pointer;padding:8px;transition:transform .15s,border-color .15s}
+.plc:hover{transform:translate(-1px,-1px);border-color:var(--c)}
+.plc.on{border-color:var(--c);box-shadow:5px 5px 0 rgba(77,243,255,.18)}
+.plc .im{aspect-ratio:1;background:rgba(255,255,255,.06) center/cover;margin-bottom:7px}
+.plc b{display:block;font:600 11.5px/1.25 'Chakra Petch';letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plc span{font:400 9.5px 'JetBrains Mono';color:var(--dim)}
+.secth{display:flex;align-items:center;gap:10px;margin:18px 0 10px;font:600 12px 'Chakra Petch';letter-spacing:.16em}
+.secth .seg{margin-left:auto}
+
+/* music widget picker + map box */
+.mcard .well{height:84px}
+.mcard .well .npmini{position:absolute;left:8px;top:8px;transform:scale(.42);transform-origin:0 0;pointer-events:none}
+.mcard .well.light{background:linear-gradient(160deg,#cfd6e6,#a9b4cc 60%,#d9def0)}
+.musbox{position:absolute;cursor:grab;border:1px dashed #FF9ECF;background:rgba(255,158,207,.14);touch-action:none;box-sizing:border-box;
+  display:flex;align-items:center;gap:4px;padding:4px;font:600 8px/1 'JetBrains Mono';color:#FF9ECF;overflow:hidden}
+.musbox::before{content:"";width:14px;height:14px;flex:none;background:rgba(255,158,207,.6)}
+.musbox.drag{cursor:grabbing;background:rgba(255,158,207,.26)}
+.musbox.off{opacity:.35}
+.hudbox.dim,.musbox.dim{opacity:.55}
+.mon.mus{border-color:rgba(255,158,207,.6)}
+
 /* palettes */
 .pal{cursor:pointer;padding:12px}
 .pal.on{border-color:var(--c);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),5px 5px 0 rgba(77,243,255,.18)}
@@ -191,7 +229,7 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
 <body>
 <div class="bar">
   <div class="cube"><i></i><i></i></div>
-  <div class="brand">NOVA HEADS<small>VOICE HUD // CONTROL</small></div>
+  <div class="brand">NOVA STREAMHUB<small>VOICE HUD + MUSIC // CONTROL</small></div>
   <div class="status glass" id="status"><span class="dot"></span><span id="stxt">STARTING</span></div>
   <button class="wbtn" id="min" title="Minimise"><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></button>
   <button class="wbtn x" id="close" title="Close (overlay keeps running)"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8"/></svg></button>
@@ -206,9 +244,10 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
     <button data-p="games">GAMES <span class="k">06</span></button>
     <button data-p="stream">STREAM <span class="k">07</span></button>
     <button data-p="stats">STATS <span class="k">08</span></button>
+    <button data-p="music">MUSIC <span class="k">♪</span></button>
     <button data-p="setup">SETUP <span class="k">09</span></button>
     <div class="spacer"></div>
-    <div class="hint glass"><b>Ctrl+Alt+J</b> this panel<br><b>Ctrl+Alt+H</b> hide HUD<br><b>Ctrl+Alt+Shift+H</b> quit<br><b>Ctrl+Alt+← →</b> switch style</div>
+    <div class="hint glass"><b>Ctrl+Alt+J</b> this panel<br><b>Ctrl+Alt+H</b> hide HUD<br><b>Ctrl+Alt+M</b> now playing<br><b>Ctrl+Alt+Shift+H</b> quit<br><b>Ctrl+Alt+← →</b> switch style</div>
   </nav>
 
   <div class="content">
@@ -236,7 +275,8 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
     <section class="page" id="p-layout">
       <h2>LAYOUT</h2><div class="sub">// where &amp; how big</div>
       <div class="rows">
-        <div class="fr glass stack"><div class="t"><b>SCREEN &amp; POSITION</b><span>click a screen, drag the box</span></div>
+        <div class="fr glass stack"><div class="t"><b>SCREEN &amp; POSITION</b><span>drag either box · they never overlap</span></div>
+          <div class="posrow"><div class="seg" id="mtgt"><button data-v="hud" class="on">VOICE HUD</button><button data-v="music">NOW PLAYING</button></div></div>
           <div class="monmap" id="monmap"></div>
           <div class="posrow"><div class="pgrid" id="pgrid"></div><button class="btn" id="identify">IDENTIFY SCREENS</button>
             <div class="posval" id="posval"></div></div></div>
@@ -308,6 +348,38 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
       </div>
     </section>
 
+    <section class="page" id="p-music">
+      <h2>MUSIC</h2><div class="sub" id="msub">// spotify</div>
+      <div class="glass nph" id="nph"><div class="bgx" id="mbg"></div><div class="cv" id="mcv"></div>
+        <div class="tx"><div class="k1" id="mk">NOW PLAYING</div><div class="t1" id="mt">—</div><div class="a1" id="ma"></div>
+          <div class="pr" id="mpr"><i id="mbar" style="width:0"></i></div>
+          <div class="ct"><button class="btn" data-m="shuffle" id="mshuf">SHUFFLE</button><button class="btn" data-m="previous">◀◀</button>
+            <button class="btn" data-m="toggle" id="mpp">PLAY</button><button class="btn" data-m="next">▶▶</button><span class="tm" id="mtm"></span></div></div></div>
+      <div class="rows" style="margin-top:12px">
+        <div class="fr glass" id="mconn"><div class="t"><b>CONNECT SPOTIFY</b><span>your app's Client ID · see README</span></div>
+          <input class="nick" id="mcid" placeholder="client id" maxlength="40" style="width:200px"><button class="btn" id="mgo">CONNECT</button></div>
+        <div class="fr glass" id="mdisc" style="display:none"><div class="t"><b>SPOTIFY</b><span>connected</span></div><button class="btn" id="mout">DISCONNECT</button></div>
+        <div class="fr glass"><div class="t"><b>NOW PLAYING WIDGET</b><span>move it in LAYOUT</span></div><div class="tog" data-k="music_show"></div></div>
+      </div>
+      <div class="secth">WIDGET STYLE <button class="btn sm" id="mreplay" style="margin-left:auto">REPLAY FX</button></div>
+      <div class="grid" id="mstyles"></div>
+      <div class="rows" style="margin-top:12px">
+        <div class="fr glass"><div class="t"><b>POP-IN EFFECT</b><span>auto = the style's own</span></div>
+          <div class="seg" data-k="music_fx"><button data-v="auto">AUTO</button><button data-v="glitch">GLITCH</button><button data-v="soft">SOFT</button><button data-v="pop">POP</button><button data-v="none">NONE</button></div></div>
+        <div class="fr glass"><div class="t"><b>COLOUR</b></div>
+          <div class="seg" data-k="music_accent"><button data-v="art">FROM ALBUM</button><button data-v="hud">HUD ACCENT</button></div></div>
+        <div class="fr glass"><div class="t"><b>SIZE</b></div>
+          <input type="range" data-k="music_scale" min="0.8" max="1.6" step="0.05"><span class="val" data-for="music_scale"></span></div>
+        <div class="fr glass"><div class="t"><b>OPACITY</b></div>
+          <input type="range" data-k="music_opacity" min="0.3" max="1" step="0.05"><span class="val" data-for="music_opacity"></span></div>
+        <div class="fr glass"><div class="t"><b>HIDE WHEN NOTHING PLAYS</b></div><div class="tog" data-k="music_autohide"></div></div>
+        <div class="fr glass"><div class="t"><b>HIDE FROM CAPTURE</b><span>not in recordings</span></div><div class="tog" data-k="music_hide_capture"></div></div>
+      </div>
+      <div class="secth">PLAYLISTS <div class="seg" id="plf"><button data-v="mine" class="on">MINE</button><button data-v="all">ALL</button></div>
+        <button class="btn sm" id="plr">REFRESH</button></div>
+      <div class="plg" id="plg"><div class="code glass">loading…</div></div>
+    </section>
+
     <section class="page" id="p-setup">
       <h2>SETUP</h2><div class="sub">// the basics</div>
       <div class="rows">
@@ -334,6 +406,7 @@ kbd{font:500 10px 'JetBrains Mono';padding:3px 6px;border:1px solid var(--edge);
 </div>
 
 <script src="hud.js"></script>
+<script src="music.js"></script>
 <script>
 const THEMES = [
   ["cyber", "CYBER", "original"], ["glass", "GLASS CUBE", "frosted"], ["soft", "SOFT", "pastel"], ["flow", "FLOW", "aurora"],
@@ -399,9 +472,9 @@ document.querySelectorAll("nav button").forEach((b) => b.onclick = () => {
 // ---------- controls
 function set(k, v) { cfg[k] = v; window.nova.set(k, v); apply(); }
 
-// ---------- monitor map + drag positioning
+// ---------- monitor map + drag positioning (voice HUD + now playing; the two boxes collide, never overlap)
 const $map = document.getElementById("monmap"), $pgrid = document.getElementById("pgrid");
-let dragging = false;
+let dragging = false, target = "hud";
 const SPOTS = [[0, 0], [.5, 0], [1, 0], [0, .5], [.5, .5], [1, .5], [0, 1], [.5, 1], [1, 1]];
 for (const [px, py] of SPOTS) {
   const b = document.createElement("button");
@@ -410,21 +483,38 @@ for (const [px, py] of SPOTS) {
   b.onclick = () => moveTo(px, py, true);
   $pgrid.appendChild(b);
 }
+document.querySelectorAll("#mtgt button").forEach((b) => b.onclick = () => {
+  target = b.dataset.v; document.querySelectorAll("#mtgt button").forEach((x) => x.classList.toggle("on", x === b)); drawMap(); });
 document.getElementById("identify").onclick = () => window.nova.identify();
+const KX = () => target === "music" ? "music_x" : "pos_x", KY = () => target === "music" ? "music_y" : "pos_y";
 let lastSend = 0, pend = null;
 function moveTo(x, y, now) {
-  cfg.pos_x = x; cfg.pos_y = y;
-  pend = { pos_x: x, pos_y: y };
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return;   // never store a broken position
+  const kx = KX(), ky = KY();
+  cfg[kx] = x; cfg[ky] = y;
+  pend = { [kx]: x, [ky]: y };
   const t = performance.now();
   if (now || t - lastSend > 40) { window.nova.setMany(pend); pend = null; lastSend = t; }
   if (!dragging) drawMap(); else markPos();
 }
+function musDisplayId() { return (cfg._music && cfg._music.display) || cfg.music_display || cfg._display; }
 function markPos() {
-  const x = cfg.pos_x ?? 0, y = cfg.pos_y ?? 0;
+  const x = cfg[KX()] ?? (target === "music" ? 1 : 0), y = cfg[KY()] ?? (target === "music" ? 1 : 0);
   $pgrid.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.p === x + "," + y));
-  const d = (cfg._displays || []).find((m) => m.id === cfg._display);
-  document.getElementById("posval").innerHTML = (d ? `SCREEN <b>${d.n}</b>${d.primary ? " (main)" : ""} · ` : "") +
+  const did = target === "music" ? musDisplayId() : cfg._display;
+  const d = (cfg._displays || []).find((m) => m.id === did);
+  document.getElementById("posval").innerHTML = `<b>${target === "music" ? "NOW PLAYING" : "VOICE HUD"}</b> · ` + (d ? `SCREEN <b>${d.n}</b>${d.primary ? " (main)" : ""} · ` : "") +
     `X <b>${Math.round(x * 100)}%</b> · Y <b>${Math.round(y * 100)}%</b>`;
+}
+// push rect r (map px) out of rect o along the shortest way, staying inside W x H
+function collide(r, o, W, H) {
+  const g = 3;
+  if (!(r.x < o.x + o.w + g && o.x < r.x + r.w + g && r.y < o.y + o.h + g && o.y < r.y + r.h + g)) return r;
+  const c = [{ x: o.x - r.w - g, y: r.y }, { x: o.x + o.w + g, y: r.y }, { x: r.x, y: o.y - r.h - g }, { x: r.x, y: o.y + o.h + g }]
+    .map((p) => ({ ...r, x: Math.min(Math.max(p.x, 0), W - r.w), y: Math.min(Math.max(p.y, 0), H - r.h) }))
+    .filter((p) => !(p.x < o.x + o.w && o.x < p.x + p.w && p.y < o.y + o.h && o.y < p.y + p.h))
+    .sort((a, b) => Math.hypot(a.x - r.x, a.y - r.y) - Math.hypot(b.x - r.x, b.y - r.y));
+  return c[0] || r;
 }
 function drawMap() {
   markPos();
@@ -436,45 +526,80 @@ function drawMap() {
   const k = Math.min((MW - pad * 2) / (maxX - minX), (MH - pad * 2) / (maxY - minY));
   const ox = (MW - (maxX - minX) * k) / 2, oy = (MH - (maxY - minY) * k) / 2;
   $map.innerHTML = "";
+  const hudOn = cfg._display, musOn = musDisplayId(), activeId = target === "music" ? musOn : hudOn;
   for (const d of ds) {
-    const el = document.createElement("div"), on = d.id === cfg._display;
-    el.className = "mon" + (on ? " on" : "");
-    const w = d.w * k, h = d.h * k;
-    Object.assign(el.style, { left: ox + (d.x - minX) * k + 1 + "px", top: oy + (d.y - minY) * k + 1 + "px", width: w - 2 + "px", height: h - 2 + "px" });
+    const el = document.createElement("div"), on = d.id === activeId;
+    el.className = "mon" + (on ? " on" : "") + (target === "music" && on ? " mus" : "");
+    const w = d.w * k, h = d.h * k, W = w - 2, H = h - 2;
+    Object.assign(el.style, { left: ox + (d.x - minX) * k + 1 + "px", top: oy + (d.y - minY) * k + 1 + "px", width: W + "px", height: H + "px" });
     el.innerHTML = `<span class="num">${d.n}</span><span class="lab">${d.w}×${d.h}${d.primary ? " · MAIN" : ""}</span>`;
-    if (!on) el.onclick = () => set("display", d.id);
+    if (!on) el.onclick = () => set(target === "music" ? "music_display" : "display", d.id);
     $map.appendChild(el);
-    if (!on) continue;
-    // the HUD box, same size relative to the monitor as the real overlay
+    // sizes in map px
     const hw = Math.min(400 * (cfg.scale || 1), d.w) * k, hh = Math.min(d.h * .66, 660 * (cfg.scale || 1)) * k;
-    const box = document.createElement("div");
-    box.className = "hudbox";
-    box.style.width = hw + "px"; box.style.height = hh + "px";
-    box.innerHTML = [30, 22, 34, 18, 26].map((v) => `<i style="--w:${v * hw / 100}px"></i>`).join("");
+    const mw = 420 * (cfg.music_scale || 1) * k, mh = 164 * (cfg.music_scale || 1) * k;
+    let hudBox = null, musBox = null;
+    // the HUD's VISIBLE block (header + people) inside its window; the widget only has to avoid that
+    const hc = cfg._hudc && cfg._win ? { x: (cfg._hudc.x - cfg._win.x) * k, y: (cfg._hudc.y - cfg._win.y) * k, w: cfg._hudc.w * k, h: cfg._hudc.h * k }
+                                     : { x: 0, y: 0, w: hw, h: hh };
+    const hudWin = () => ({ x: (cfg.pos_x ?? 0) * (W - hw), y: (cfg.pos_y ?? 0) * (H - hh), w: hw, h: hh });
+    const hudR = () => { const w0 = hudWin(); return { x: w0.x + hc.x, y: w0.y + hc.y, w: hc.w, h: hc.h }; };
+    const ms = cfg.music_scale || 1, mc = { x: 14 * ms * k, y: 14 * ms * k, w: 392 * ms * k, h: (cfg.music_style === "y2k" ? 136 : 116) * ms * k };   // the card inside its window
+    const musWin = () => (cfg._music && !dragging && cfg._music.display === d.id)
+      ? { x: cfg._music.x * k, y: cfg._music.y * k, w: mw, h: mh }
+      : { x: (cfg.music_x ?? 1) * (W - mw), y: (cfg.music_y ?? 1) * (H - mh), w: mw, h: mh };
+    const musR = () => { const w0 = musWin(); return { x: w0.x + mc.x, y: w0.y + mc.y, w: mc.w, h: mc.h }; };
+    if (d.id === hudOn) {
+      hudBox = document.createElement("div"); hudBox.className = "hudbox" + (target === "music" ? " dim" : "");
+      hudBox.style.width = hc.w + "px"; hudBox.style.height = Math.max(8, hc.h) + "px";
+      hudBox.innerHTML = [30, 22, 34, 18, 26].map((v) => `<i style="--w:${v * hw / 100}px"></i>`).join("");
+      el.appendChild(hudBox);
+    }
+    if (d.id === musOn && cfg.music_show !== false) {
+      musBox = document.createElement("div"); musBox.className = "musbox" + (target === "hud" ? " dim" : "");
+      musBox.style.width = mc.w + "px"; musBox.style.height = mc.h + "px"; musBox.textContent = mw > 60 ? "♪ NOW PLAYING" : "♪";
+      el.appendChild(musBox);
+    }
     const put = () => {
-      box.style.left = (cfg.pos_x ?? 0) * (w - 2 - hw) + "px"; box.style.top = (cfg.pos_y ?? 0) * (h - 2 - hh) + "px";
-      box.classList.toggle("r", (cfg.pos_x ?? 0) > .55); box.classList.toggle("b", (cfg.pos_y ?? 0) > .6);
+      if (hudBox) { const r = hudR(); hudBox.style.left = r.x + "px"; hudBox.style.top = r.y + "px";
+        hudBox.style.width = r.w + "px";
+        hudBox.classList.toggle("r", (cfg.pos_x ?? 0) > .55); hudBox.classList.toggle("b", (cfg.pos_y ?? 0) > .6); }
+      if (musBox) { const r = musR(); musBox.style.left = r.x + "px"; musBox.style.top = r.y + "px"; }
     };
     put();
-    el.appendChild(box);
-    box.onpointerdown = (e) => {
+    const drag = (box, who) => box.onpointerdown = (e) => {
+      if (target !== who) { target = who; document.querySelectorAll("#mtgt button").forEach((x) => x.classList.toggle("on", x.dataset.v === who)); }
+      hudBox && hudBox.classList.toggle("dim", who !== "hud"); musBox && musBox.classList.toggle("dim", who !== "music");
       dragging = true; box.classList.add("drag"); box.setPointerCapture(e.pointerId);
       const r = el.getBoundingClientRect(), gx = e.clientX - box.getBoundingClientRect().left, gy = e.clientY - box.getBoundingClientRect().top;
+      const bw = who === "music" ? mw : hw, bh = who === "music" ? mh : hh;
       box.onpointermove = (ev) => {
-        const snap = (v) => { for (const s of [0, .5, 1]) if (Math.abs(v - s) < .04) return s; return Math.round(v * 1000) / 1000; };
-        const fx = snap(Math.min(1, Math.max(0, (ev.clientX - r.left - gx) / Math.max(1, r.width - 2 - hw))));
-        const fy = snap(Math.min(1, Math.max(0, (ev.clientY - r.top - gy) / Math.max(1, r.height - 2 - hh))));
+        // what the user grabbed is the visible box; for the HUD that's the people block inside its window
+        const off = who === "hud" ? hc : mc;
+        let vis = { x: ev.clientX - r.left - gx, y: ev.clientY - r.top - gy, w: off.w, h: off.h };
+        vis.x = Math.min(Math.max(vis.x, off.x), W - bw + off.x); vis.y = Math.min(Math.max(vis.y, off.y), H - bh + off.y);
+        const other = who === "music" ? (hudBox && hudR()) : (musBox && musR());
+        if (other) vis = collide(vis, other, W, H);
+        let rr = { x: vis.x - off.x, y: vis.y - off.y, w: bw, h: bh };
+        const snap = (v) => { for (const s of [0, .5, 1]) if (Math.abs(v - s) < .03) return s; return Math.round(v * 1000) / 1000; };
+        let fx = snap(rr.x / Math.max(1, W - bw)), fy = snap(rr.y / Math.max(1, H - bh));
+        // snapping must not undo the collision
+        const test = { x: fx * (W - bw) + off.x, y: fy * (H - bh) + off.y, w: off.w, h: off.h };
+        if (other && collide(test, other, W, H) !== test) { fx = rr.x / Math.max(1, W - bw); fy = rr.y / Math.max(1, H - bh); }
         moveTo(fx, fy); put();
       };
       box.onpointerup = () => {
         box.onpointermove = box.onpointerup = null; box.classList.remove("drag"); dragging = false;
-        window.nova.setMany({ pos_x: cfg.pos_x, pos_y: cfg.pos_y }); drawMap();
+        if (Number.isFinite(cfg[KX()]) && Number.isFinite(cfg[KY()])) window.nova.setMany({ [KX()]: cfg[KX()], [KY()]: cfg[KY()] });
+        setTimeout(drawMap, 120);
       };
     };
+    if (hudBox) drag(hudBox, "hud");
+    if (musBox) drag(musBox, "music");
   }
 }
 new ResizeObserver(() => drawMap()).observe($map);
-document.querySelectorAll(".seg").forEach((s) => s.querySelectorAll("button").forEach((b) => b.onclick = () => set(s.dataset.k, b.dataset.v)));
+document.querySelectorAll(".seg[data-k]").forEach((s) => s.querySelectorAll("button").forEach((b) => b.onclick = () => set(s.dataset.k, b.dataset.v)));
 document.querySelectorAll(".tog").forEach((t) => t.onclick = () => set(t.dataset.k, !t.classList.contains("on")));
 document.querySelectorAll("input[type=range]").forEach((r) => r.oninput = () => set(r.dataset.k, parseFloat(r.value)));
 document.getElementById("accent").oninput = (e) => set("accent_override", e.target.value);
@@ -495,12 +620,12 @@ document.querySelectorAll("#bgpick button").forEach((b) => b.onclick = () => {
 function apply() {
   document.querySelectorAll(".card").forEach((c) => c.classList.toggle("on", c.dataset.theme === (cfg.theme || "cyber")));
   document.querySelectorAll(".pal").forEach((c) => c.classList.toggle("on", c.dataset.pal === (cfg.palette || "default")));
-  document.querySelectorAll(".seg").forEach((s) => s.querySelectorAll("button").forEach((b) =>
-    b.classList.toggle("on", String(cfg[s.dataset.k] ?? (s.dataset.k === "fx" ? "auto" : "left")) === b.dataset.v)));
-  document.querySelectorAll(".tog").forEach((t) => t.classList.toggle("on", t.dataset.k === "particles" || t.dataset.k === "sfx" || t.dataset.k === "toasts" || t.dataset.k === "show_header" || t.dataset.k === "show_names"
+  document.querySelectorAll(".seg[data-k]").forEach((s) => s.querySelectorAll("button").forEach((b) =>
+    b.classList.toggle("on", String(cfg[s.dataset.k] ?? ({ fx: "auto", music_fx: "auto", music_accent: "art" }[s.dataset.k] || "left")) === b.dataset.v)));
+  document.querySelectorAll(".tog").forEach((t) => t.classList.toggle("on", t.dataset.k === "particles" || t.dataset.k === "sfx" || t.dataset.k === "toasts" || t.dataset.k === "show_header" || t.dataset.k === "show_names" || t.dataset.k === "music_show" || t.dataset.k === "music_autohide"
     ? cfg[t.dataset.k] !== false : !!cfg[t.dataset.k]));
   document.querySelectorAll("input[type=range]").forEach((r) => {
-    const v = cfg[r.dataset.k] ?? { top: .33, scale: 1, idle_opacity: .8, sfx_volume: .5, custom_slice: 30 }[r.dataset.k];
+    const v = cfg[r.dataset.k] ?? { top: .33, scale: 1, idle_opacity: .8, sfx_volume: .5, custom_slice: 30, music_scale: 1, music_opacity: 1 }[r.dataset.k];
     r.value = v; r.style.setProperty("--p", ((v - r.min) / (r.max - r.min)) * 100 + "%");
     document.querySelector(`.val[data-for=${r.dataset.k}]`).textContent = r.dataset.k === "top" ? Math.round(v * 100) + "%" : r.dataset.k === "custom_slice" ? v + "%" : v.toFixed(2);
   });
@@ -623,6 +748,79 @@ window.nova.onStats((st) => {
 document.getElementById("artFrame").onclick = () => window.nova.pickArt("frame");
 document.getElementById("artPlate").onclick = () => window.nova.pickArt("plate");
 document.getElementById("artClear").onclick = () => window.nova.clearArt();
+// ---------- music
+let ms = null, plMode = "mine", pls = [];
+const $m = (id) => document.getElementById(id);
+document.querySelectorAll("[data-m]").forEach((b) => b.onclick = () => window.nova.music(b.dataset.m));
+$m("mpr").onclick = (e) => { if (!ms || !ms.dur) return; const r = $m("mpr").getBoundingClientRect(); window.nova.music("seek", (e.clientX - r.left) / r.width * ms.dur); };
+$m("mgo").onclick = async () => {
+  $m("mgo").textContent = "WAITING…";
+  const r = await window.nova.spotifyConnect($m("mcid").value);
+  $m("mgo").textContent = r.ok ? "CONNECTED" : "CONNECT";
+  if (!r.ok) $m("mconn").querySelector("span").textContent = "⚠ " + r.msg; else loadPls(true);
+};
+$m("mout").onclick = () => window.nova.spotifyLogout();
+window.nova.onMusic((s) => {
+  ms = s;
+  const conn = !(s.ok === false && s.msg === "not connected");
+  $m("mconn").style.display = conn ? "none" : ""; $m("mdisc").style.display = conn ? "" : "none";
+  const live = s.ok && !s.idle;
+  $m("msub").textContent = !s.ok ? (s.msg === "not connected" ? "// not connected" : "// " + s.msg) : "// spotify connected" + (s.device ? " · " + s.device : "");
+  $m("mk").textContent = s.err ? "⚠ " + s.err.toUpperCase() : !live ? "NOTHING PLAYING" : s.playing ? "NOW PLAYING" : "PAUSED";
+  $m("mt").textContent = live ? s.title : "—"; $m("ma").textContent = live ? s.artist + (s.album ? "  ·  " + s.album : "") : "pick a playlist below";
+  const u = live && s.art ? `url("${s.art}")` : ""; $m("mcv").style.backgroundImage = u; $m("mbg").style.backgroundImage = u;
+  $m("mpp").textContent = live && s.playing ? "PAUSE" : "PLAY";
+  $m("mshuf").style.borderColor = s.shuffle ? "var(--c)" : "";
+  document.querySelectorAll(".plc").forEach((c) => c.classList.toggle("on", !!s.context && c.dataset.uri === s.context));
+});
+(function mtick() {
+  if (ms && ms.ok && !ms.idle && ms.dur) { const pos = Math.min(ms.dur, ms.pos + (ms.playing ? Date.now() - ms.at : 0));
+    $m("mbar").style.width = (pos / ms.dur * 100) + "%"; $m("mtm").textContent = fmtT(pos) + " / " + fmtT(ms.dur); }
+  setTimeout(mtick, 250);
+})();
+function drawPls() {
+  const list = pls.filter((p) => plMode === "all" || (p.mine && p.count));
+  $m("plg").innerHTML = list.length ? "" : `<div class="code glass">${pls.length ? "no playlists here" : "connect Spotify to see your playlists"}</div>`;
+  for (const p of list) {
+    const c = document.createElement("div"); c.className = "plc glass"; c.dataset.uri = p.uri;
+    c.innerHTML = `<div class="im" style="${p.img ? `background-image:url('${esc(p.img)}')` : ""}"></div><b>${esc(p.name)}</b><span>${p.count ?? "?"} songs</span>`;
+    c.onclick = () => window.nova.music("playlist", p.uri);
+    c.classList.toggle("on", !!ms && ms.context === p.uri);
+    $m("plg").appendChild(c);
+  }
+}
+async function loadPls(force) { pls = await window.nova.playlists(force); drawPls(); }
+document.querySelectorAll("#plf button").forEach((b) => b.onclick = () => {
+  plMode = b.dataset.v; document.querySelectorAll("#plf button").forEach((x) => x.classList.toggle("on", x === b)); drawPls(); });
+$m("plr").onclick = () => loadPls(true);
+document.querySelector('nav [data-p="music"]').addEventListener("click", () => loadPls(false));
+loadPls(false);
+
+// ---------- widget style cards (live previews of every variant)
+const MSTY = [["match", "MATCH HUD", "follows your style"], ...THEMES.map(([id, n, t]) => [id, n, t]), ["y2k", "Y2K", "windows 98"]];
+const DEMO_NP = { ok: true, playing: true, id: "demo", title: "Binhi", artist: "Arthur Nery", album: "Letters Never Sent", dur: 228000, pos: 82000, art: "demo-art.jpg", device: "PC" };
+const mcards = [];
+const $ms = document.getElementById("mstyles");
+for (const [id, name, tag] of MSTY) {
+  const c = document.createElement("div"); c.className = "card glass mcard"; c.dataset.ms = id;
+  c.innerHTML = `<div class="chk">✓</div><div class="well"><div class="np npmini">${npMarkup()}</div></div><div class="lbl"><b>${name}</b><span>${tag}</span></div>`;
+  c.onclick = () => { set("music_style", id); setTimeout(() => mcards.forEach((m) => m.card.replay()), 60); };
+  $ms.appendChild(c);
+  const card = mountMusic(c.querySelector(".np"), {});
+  mcards.push({ id, card, el: c });
+}
+function drawMusicStyles() {
+  const cur = cfg.music_style || "match";
+  for (const m of mcards) {
+    m.el.classList.toggle("on", m.id === cur);
+    const th = m.id === "match" ? (cfg.theme || "cyber") : m.id;
+    m.el.querySelector(".well").classList.toggle("light", ["soft", "sakura", "pop", "ink", "comic"].includes(th));
+    m.card.setConfig({ ...cfg, music_style: m.id });
+    m.card.render({ ...DEMO_NP, at: Date.now(), playing: false });
+  }
+}
+document.getElementById("mreplay").onclick = () => mcards.forEach((m) => m.card.replay());
+window.nova.onConfig(() => drawMusicStyles());
 window.nova.ready();
 </script>
 </body>

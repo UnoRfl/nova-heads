@@ -19,4 +19,11 @@ contextBridge.exposeInMainWorld("nova", {
   statsReset: () => ipcRenderer.send("statsReset"),
   openHeads: () => ipcRenderer.send("openHeads"),
   win: (what) => ipcRenderer.send("win", what),
+  // spotify
+  onMusic: (fn) => ipcRenderer.on("music", (_e, s) => fn(s)),
+  music: (cmd, arg) => ipcRenderer.send("music", { cmd, arg }),
+  playlists: (force) => ipcRenderer.invoke("playlists", !!force),
+  hudRect: (r) => ipcRenderer.send("hudRect", r),
+  spotifyConnect: (id) => ipcRenderer.invoke("spotifyConnect", id),
+  spotifyLogout: () => ipcRenderer.send("spotifyLogout"),
 });

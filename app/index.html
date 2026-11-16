@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data: https://cdn.discordapp.com; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; media-src 'self' blob: mediastream:">
-<title>Nova Heads</title>
+<title>Nova StreamHub</title>
 <link rel="stylesheet" href="hud.css">
 <link rel="stylesheet" href="themes.css">
 <style>
@@ -81,6 +81,19 @@ window.nova.onConfig((c) => {
 });
 window.nova.onState((s) => hud.render(s));
 window.nova.onToast((t) => hud.toast(t));
+// tell the main process where the visible HUD actually is (header + rows), so the music widget can sit right next to it
+let lastRect = "";
+setInterval(() => {
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const el of document.querySelectorAll("#hud .hdr, #hud .row:not(.gone):not(.leaving)")) {
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2 || getComputedStyle(el).display === "none") continue;
+    x0 = Math.min(x0, r.left); y0 = Math.min(y0, r.top); x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom);
+  }
+  const rect = x1 > x0 ? { x: Math.floor(x0), y: Math.floor(y0), w: Math.ceil(x1 - x0), h: Math.ceil(y1 - y0) } : null;
+  const k = JSON.stringify(rect);
+  if (k !== lastRect) { lastRect = k; window.nova.hudRect(rect); }
+}, 300);
 window.nova.ready();
 </script>
 </body>

@@ -10,3 +10,4 @@ node_modules/
 runtime/
 dist/
 *.zip
+spotify_token.json

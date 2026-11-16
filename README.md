@@ -1,8 +1,10 @@
 <p align="center"><img src="docs/banner.png" alt="Nova Heads" width="100%"></p>
 
-# <img src="docs/icon.png" width="34" align="top"> Nova Heads
+# <img src="docs/icon.png" width="34" align="top"> Nova StreamHub
 
-**A custom Discord voice overlay for Windows.** It shows who's in your voice channel as a HUD on top of your games.
+*(formerly Nova Heads)*
+
+**A custom Discord voice overlay for Windows, now with a Spotify now-playing widget.** It shows who's in your voice channel as a HUD on top of your games.
 Whoever is talking lights up, and every style has its own join/leave animation and sound effects. There are **17 styles** and **9 colour palettes**,
 and a **frosted-glass control panel** where you change them live.
 
@@ -12,6 +14,29 @@ official local RPC.
 ![The original 11 styles](docs/themes.png)
 
 ![New in v2.2: Ink, Noir, Oni, Anime, Pop, 8-Bit](docs/styles-v2.2.png)
+
+## Spotify now playing (new)
+
+A now-playing card that sits next to the voice list: album art, title, artist, progress, with the same pop-in effects
+(glitch, brush, slash, film, zoom, pixel...) and sounds as the HUD. It comes in a variant of **every style** plus a Y2K one,
+and by default it follows whatever style the HUD is using.
+
+![Now playing styles](docs/music-styles.png)
+
+- **Click-through**: like the HUD, it never takes a click while you work or play. Control music from the panel's **MUSIC** page
+  (play/pause, skip, shuffle, seek, and a grid of your playlists: click one to play it).
+- **Never overlaps the voice list**: move it in **LAYOUT** (switch the map to NOW PLAYING and drag). The two boxes collide;
+  when more people join and the list grows, the widget slides out of the way, and comes back when it shrinks.
+- Style, pop-in effect, colour (from the album art or your HUD accent), size, opacity, hide when nothing plays, hide from recordings.
+
+**Connect it (one time, free):**
+1. Open **[developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)** and log in.
+   Spotify needs your account's email to be verified, and since February 2026 the app owner needs **Spotify Premium**.
+2. **Create app**: any name, redirect URI `http://127.0.0.1:8888/callback`, tick **Web API**, save.
+3. Copy the app's **Client ID** (no secret needed).
+4. In the control panel go to **MUSIC**, paste it into **CONNECT SPOTIFY**, click **CONNECT** and agree in the browser tab.
+
+The login is stored in `spotify_token.json` next to the app, on your PC only. Spotify has to be open on some device for play/skip to work.
 
 ## Download & run (2 minutes)
 
@@ -30,6 +55,7 @@ official local RPC.
 |---|---|
 | `Ctrl+Alt+J` | open the control panel (also: click the tray icon) |
 | `Ctrl+Alt+H` | show / hide the HUD |
+| `Ctrl+Alt+M` | show / hide the now-playing widget |
 | `Ctrl+Alt+Shift+H` | quit |
 | `Ctrl+Alt+←` / `→` | switch style mid-game |
 

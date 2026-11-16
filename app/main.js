@@ -24,7 +24,9 @@ const CONFIG_FILE = path.join(ROOT, "config.json");
 const DEFAULTS = { theme: "cyber", palette: "default", anchor: "left", top: 0.33, margin: 14, scale: 1, idle_opacity: 0.8,
                    hide_self: false, only_speaking: false, show_header: true, show_names: true, fx: "auto", particles: true, sfx: true, sfx_volume: 0.5,
                    compact: false, toasts: true, stream: false, stream_anchor: "left", hide_from_capture: false, profiles: {}, custom_slice: 30,
-                   real_glass: false, autostart: false, accent_override: null, people: {} };
+                   real_glass: false, autostart: false, accent_override: null, people: {},
+                   music_show: true, music_style: "match", music_scale: 1, music_autohide: true, music_accent: "art", music_opacity: 1,
+                   music_display: null, music_display_hint: null, music_x: null, music_y: null, music_hide_capture: false };
 const FIRST_RUN = !fs.existsSync(CONFIG_FILE);
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");   // HUD sounds play without a click
 let cfg = { ...DEFAULTS };
@@ -368,6 +370,10 @@ function setKey(key, value) {
   if (["pos_x", "pos_y", "scale", "display"].includes(key)) placeOverlay();
   if (key === "real_glass" || key === "hide_from_capture") applyGlass();
   if (key === "stream") value ? startStream() : stopStream();
+  if (key === "music_show") toggleMusic(!!value);
+  if (key === "music_display") { const d = screen.getAllDisplays().find((x) => String(x.id) === String(value)); if (d) cfg.music_display_hint = hintOf(d); }
+  if (["music_scale", "music_display", "music_x", "music_y"].includes(key)) placeMusic();
+  if (key === "music_hide_capture" && musicWin && !musicWin.isDestroyed()) musicWin.setContentProtection(!!value);
   if (key === "autostart" && !TEST) app.setLoginItemSettings({ openAtLogin: !!value, args: [] });
   saveCfg(); sendConfig(); push();
 }
@@ -388,7 +394,102 @@ if (TEST) app.setPath("userData", path.join(require("os").tmpdir(), "nova-heads-
 else if (!app.requestSingleInstanceLock()) app.quit();
 else app.on("second-instance", () => app.isReady() && openPanel());   // launching again (e.g. desktop shortcut) = open the panel
 
-let panel = null, tray = null;
+let panel = null, tray = null, musicWin = null;
+
+// ---------------------------------------------------------------- spotify now-playing widget
+const spotify = require("./spotify")({ root: ROOT, log, demo: DEMO, onState: (s) => {
+  for (const w of [musicWin, panel]) if (w && !w.isDestroyed()) w.webContents.send("music", s);
+} });
+const MW = 420, MH = 164;   // widget card 392x136 + 14px margin each side
+function musicSize() { const k = cfg.music_scale || 1; return { width: Math.round(MW * k), height: Math.round(MH * k) }; }
+function musicFast() { spotify.setFast(!!((musicWin && !musicWin.isDestroyed() && musicWin.isVisible()) || (panel && !panel.isDestroyed()))); }
+// placement works like the HUD: a screen + x/y fractions. The widget and the HUD never overlap: if they would,
+// the widget is pushed to the nearest free spot beside the HUD (panel drag does the same live).
+const GAP = 6;
+const hit = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+function pickMusicDisplay() {
+  const all = screen.getAllDisplays();
+  return all.find((d) => String(d.id) === String(cfg.music_display))
+      || (cfg.music_display_hint && all.find((d) => hintOf(d) === cfg.music_display_hint))
+      || pickDisplay();
+}
+function unhit(r, h, d) {
+  if (!hit(r, h)) return r;
+  const cl = (v, lo, hi) => Math.min(Math.max(v, lo), Math.max(lo, hi));
+  const opts = [
+    { x: r.x, y: h.y - r.height - GAP }, { x: r.x, y: h.y + h.height + GAP },
+    { x: h.x - r.width - GAP, y: r.y }, { x: h.x + h.width + GAP, y: r.y },
+  ].map((o) => ({ x: cl(o.x, d.x, d.x + d.width - r.width), y: cl(o.y, d.y, d.y + d.height - r.height), width: r.width, height: r.height }))
+   .filter((o) => !hit(o, h))
+   .sort((a, b) => Math.hypot(a.x - r.x, a.y - r.y) - Math.hypot(b.x - r.x, b.y - r.y));
+  return opts[0] || r;
+}
+let placingMusic = false, hudContent = undefined, hudRectT = 0;
+// the HUD's visible part in screen px (null = nothing shown); falls back to its whole window
+function hudBlock() {
+  if (!win || win.isDestroyed() || !win.isVisible()) return null;
+  const b = win.getBounds();
+  if (hudContent === undefined) return b;
+  if (!hudContent) return null;
+  const pad = 4;
+  return { x: b.x + hudContent.x - pad, y: b.y + hudContent.y - pad, width: hudContent.w + pad * 2, height: hudContent.h + pad * 2 };
+}
+const CARD_PAD = 14;   // music.html body padding around the card
+function cardH() { return eff().music_style === "y2k" ? 136 : 116; }
+function musicRect() {
+  const sz = musicSize(), disp = pickMusicDisplay(), d = disp.workArea;   // work area: never on top of the taskbar
+  if (cfg.music_x == null || cfg.music_y == null) {
+    if (cfg.music_bounds) {      // migrate the old absolute position
+      const md = screen.getDisplayMatching({ x: cfg.music_bounds.x, y: cfg.music_bounds.y, width: sz.width, height: sz.height }).bounds;
+      cfg.music_x = clamp01((cfg.music_bounds.x - md.x) / Math.max(1, md.width - sz.width));
+      cfg.music_y = clamp01((cfg.music_bounds.y - md.y) / Math.max(1, md.height - sz.height));
+      delete cfg.music_bounds;
+    } else { cfg.music_x = 1; cfg.music_y = 1; }
+  }
+  let r = { x: Math.round(d.x + clamp01(cfg.music_x) * (d.width - sz.width)), y: Math.round(d.y + clamp01(cfg.music_y) * (d.height - sz.height)), ...sz };
+  const hb = hudBlock();
+  if (hb && String(pickDisplay().id) === String(disp.id)) {
+    // collide the CARD (not the transparent window margin) with the visible HUD, a few px apart
+    const k = cfg.music_scale || 1, m = Math.round(CARD_PAD * k);
+    const card = { x: r.x + m, y: r.y + m, width: r.width - 2 * m, height: Math.round(cardH() * k) };
+    const area = { x: d.x, y: d.y, width: d.width, height: d.height };
+    const moved = unhit(card, hb, area);
+    r = { ...r, x: moved.x - m, y: moved.y - m };
+  }
+  D._music = { display: String(disp.id), x: r.x - disp.bounds.x, y: r.y - disp.bounds.y, w: r.width, h: r.height };
+  return r;
+}
+function placeMusic() {
+  const r = musicRect();
+  if (musicWin && !musicWin.isDestroyed()) { placingMusic = true; musicWin.setBounds(r); setTimeout(() => { placingMusic = false; }, 120); }
+  return r;
+}
+function openMusic() {
+  if (musicWin && !musicWin.isDestroyed()) { musicWin.showInactive(); musicFast(); return; }
+  musicWin = new BrowserWindow({ ...musicRect(), transparent: true, frame: false, resizable: false, skipTaskbar: true,
+    hasShadow: false, show: false, focusable: false, backgroundColor: "#00000000",
+    webPreferences: { preload: path.join(__dirname, "preload.js"), backgroundThrottling: false } });
+  musicWin.setAlwaysOnTop(true, "screen-saver");   // same layer as the voice HUD (stays over borderless games)
+  musicWin.setContentProtection(!!cfg.music_hide_capture);
+  musicWin.setIgnoreMouseEvents(true);   // click-through, like the HUD: it can never steal a click while you work or play
+  musicWin.loadFile(path.join(__dirname, "music.html"));
+  musicWin.webContents.once("did-finish-load", () => { sendConfig(); musicWin.webContents.send("music", spotify.state()); if (!SHOT || argv.includes("--show-test")) musicWin.showInactive(); musicFast(); });
+  // dragged by hand on the desktop: store screen + fractions, then bump it off the HUD if it landed on it
+  musicWin.on("moved", () => {
+    if (placingMusic) return;
+    const b = musicWin.getBounds(), disp = screen.getDisplayMatching(b), d = disp.workArea;
+    cfg.music_display = String(disp.id); cfg.music_display_hint = hintOf(disp);
+    cfg.music_x = clamp01((b.x - d.x) / Math.max(1, d.width - b.width));
+    cfg.music_y = clamp01((b.y - d.y) / Math.max(1, d.height - b.height));
+    placeMusic(); saveCfg(); sendConfig();
+  });
+  musicWin.on("closed", () => { musicWin = null; musicFast(); });
+}
+function toggleMusic(force) {
+  const on = force ?? !(musicWin && !musicWin.isDestroyed() && musicWin.isVisible());
+  if (on) openMusic(); else if (musicWin && !musicWin.isDestroyed()) musicWin.hide();
+  musicFast();
+}
 
 // ---------------------------------------------------------------- monitors + placement
 // cfg.display = Electron display id (+ display_hint = "x,y,w,h" in case ids change after a reboot / replug)
@@ -427,6 +528,7 @@ function placeOverlay() {
     _display: String(disp.id), _win: { x: x - d.x, y: y - d.y }, _screen: { w: d.width, h: d.height }, _hud: { w: W, h: H },
   });
   if (win) win.setBounds({ x, y, width: W, height: H });
+  if (typeof placeMusic === "function" && musicWin) placeMusic(); else if (typeof musicRect === "function") try { musicRect(); } catch {}
   return { x, y, width: W, height: H };
 }
 
@@ -449,7 +551,7 @@ function identify() {
 function sendConfig() {
   const out = { ...eff(), ...D, _displays: displays(), _game: activeGame, _running: runningApps, _stream_port: streamPort(),
                 _stream_on: !!server, demo: DEMO };
-  for (const w of [win, panel]) if (w && !w.isDestroyed()) w.webContents.send("config", out);
+  for (const w of [win, panel, musicWin]) if (w && !w.isDestroyed()) w.webContents.send("config", out);
   sse("config", streamCfg());
 }
 
@@ -462,7 +564,7 @@ function openPanel() {
   if (panel && !panel.isDestroyed()) { panel.show(); panel.focus(); return; }
   nativeTheme.themeSource = "dark";
   panel = new BrowserWindow({
-    width: 1080, height: 680, minWidth: 900, minHeight: 560, frame: false, show: false, title: "Nova Heads",
+    width: 1080, height: 680, minWidth: 900, minHeight: 560, frame: false, show: false, title: "Nova StreamHub",
     backgroundMaterial: "acrylic", backgroundColor: "#00000000", icon: path.join(__dirname, "icon.png"),
     webPreferences: { preload: path.join(__dirname, "preload.js") },
   });
@@ -471,18 +573,20 @@ function openPanel() {
     sendConfig(); push(); panel.show();
     const pg = arg("--page"); if (pg) panel.webContents.executeJavaScript(`document.querySelector('nav [data-p="${pg}"]').click()`);
   });
-  panel.on("closed", () => { panel = null; });
+  panel.on("closed", () => { panel = null; musicFast(); });
+  musicFast();
 }
 
 function makeTray() {
   try {
     tray = new Tray(nativeImage.createFromPath(path.join(__dirname, "icon.png")).resize({ width: 16, height: 16 }));
-    tray.setToolTip("Nova Heads");
+    tray.setToolTip("Nova StreamHub");
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: "Open control panel", click: openPanel },
       { label: "Show / hide HUD", click: () => (win.isVisible() ? win.hide() : win.showInactive()) },
+      { label: "Show / hide now playing", click: () => toggleMusic() },
       { type: "separator" },
-      { label: "Quit Nova Heads", click: () => app.quit() },
+      { label: "Quit Nova StreamHub", click: () => app.quit() },
     ]));
     tray.on("click", openPanel);
   } catch (e) { log("tray failed: " + e.message); }
@@ -508,11 +612,24 @@ app.whenReady().then(() => {
   win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.once("did-finish-load", () => { sendConfig(); win.showInactive(); push(); });
 
-  ipcMain.on("ready", () => { sendConfig(); push(); });
+  ipcMain.on("ready", (e) => { sendConfig(); push(); e.sender.send("music", spotify.state()); });
+  ipcMain.on("music", (_e, { cmd, arg }) => spotify.control(cmd, arg));
+  ipcMain.handle("spotifyConnect", (_e, id) => spotify.connect(id, (u) => shell.openExternal(u)).then(() => ({ ok: true })).catch((e) => ({ ok: false, msg: e.message })));
+  ipcMain.on("spotifyLogout", () => spotify.logout());
+  ipcMain.on("hudRect", (_e, r) => {
+    hudContent = r;
+    const b = win && !win.isDestroyed() ? win.getBounds() : null, dd = pickDisplay().bounds;
+    D._hudc = r && b ? { x: b.x - dd.x + r.x, y: b.y - dd.y + r.y, w: r.w, h: r.h } : null;
+    clearTimeout(hudRectT); hudRectT = setTimeout(() => { placeMusic(); sendConfig(); }, 80);
+  });
+  ipcMain.handle("playlists", (_e, force) => spotify.playlists(force).catch((err) => { log("playlists: " + err.message); return []; }));
   ipcMain.on("setMany", (_e, obj) => {
     const prof = activeGame && cfg.profiles && cfg.profiles[activeGame], tgt = prof || cfg;
-    for (const [k, v] of Object.entries(obj || {})) if (["pos_x", "pos_y"].includes(k)) tgt[k] = clamp01(v);
-    placeOverlay(); saveCfg(); sendConfig(); push();
+    for (const [k, v] of Object.entries(obj || {})) {
+      if (["pos_x", "pos_y"].includes(k)) tgt[k] = clamp01(v);
+      if (["music_x", "music_y"].includes(k) && Number.isFinite(+v) && v !== null) cfg[k] = clamp01(v);
+    }
+    placeOverlay(); placeMusic(); saveCfg(); sendConfig(); push();
   });
   // per-person looks (saved by username)
   ipcMain.on("person", (_e, { key, patch }) => {
@@ -581,6 +698,7 @@ app.whenReady().then(() => {
 
   globalShortcut.register("Control+Alt+H", () => (win.isVisible() ? win.hide() : win.showInactive()));
   globalShortcut.register("Control+Alt+J", openPanel);
+  globalShortcut.register("Control+Alt+M", () => toggleMusic());
   globalShortcut.register("Control+Alt+Shift+H", () => app.quit());
   globalShortcut.register("Control+Alt+Right", () => cycleTheme(1));
   globalShortcut.register("Control+Alt+Left", () => cycleTheme(-1));
@@ -589,11 +707,13 @@ app.whenReady().then(() => {
   if (argv.includes("--panel") && TEST) openPanel();
 
   if (DEMO) demo(); else new RPC().start();
+  spotify.start();
+  if (eff().music_show !== false && !argv.includes("--no-music")) openMusic();
   scanApps();
   if (cfg.stream || argv.includes("--stream")) startStream();
   setInterval(() => { if (panel && !panel.isDestroyed()) panel.webContents.send("stats", statsView()); }, 1000);
 
-  const target = () => (argv.includes("--shoot-panel") && panel ? panel : win);
+  const target = () => (argv.includes("--shoot-panel") && panel ? panel : argv.includes("--shoot-music") && musicWin ? musicWin : win);
   if (SHOT) setTimeout(async () => {
     const img = await target().webContents.capturePage();
     fs.writeFileSync(SHOT, img.toPNG());
